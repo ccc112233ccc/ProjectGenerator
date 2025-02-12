@@ -1,0 +1,36 @@
+{
+    "DATASET": {
+        "train_x": "../data/em-dataset/x_e_train_x_S.csv",
+        "train_y": "../data/em-dataset/y_e_train_x_S.csv",
+        "test_x": "../data/em-dataset/x_e_test_x_S.csv",
+        "test_y": "../data/em-dataset/y_e_test_x_S.csv"
+    },
+    "NORMALIZATION": {
+        "maxx1": [
+            9.5,
+            1.3,
+            2.5,
+            1.2
+        ],
+        "minx1": [
+            8,
+            0.3,
+            0.5,
+            0.2
+        ],
+        "maxx2": 14,
+        "minx2": 2
+    },
+    "MODEL": {
+        "path": "../data/em-model/m_300_4"
+    },
+    "TRAINING": {
+        "train": true,
+        "iterations": 30000,
+        "display_every": 500,
+        "batch_size": 10000
+    },
+    "BACKEND": {
+        "type": "pytorch"
+    }
+}

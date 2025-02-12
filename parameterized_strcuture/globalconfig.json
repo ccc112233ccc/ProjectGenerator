@@ -1,0 +1,16 @@
+{
+    "name":"template",
+    "config": {
+        "file_path": "parameterized_strcuture/forward_code/config.json"
+    },
+    "solver": {
+        "solver_path": "E:\\PycharmProjects\\openXDE\\.venv\\Scripts\\python.exe",
+        "pwd_dir": "parameterized_strcuture/forward_code",
+        "solver_args": "electro_predictor.py"
+    },
+    "structure": {
+        "structure_path": [
+            "parameterized_strcuture/figure.png"
+        ]
+    }
+}

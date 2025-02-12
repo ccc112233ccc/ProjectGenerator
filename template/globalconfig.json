@@ -1,0 +1,15 @@
+{
+    "name":"template",
+    "config": {
+        "file_path": "template/config.json"
+    },
+    "solver": {
+        "solver_path": "python3",
+        "pwd_dir": "template",
+        "solver_args": "runner.py"
+    },
+    "structure": {
+        "structure_path": [
+        ]
+    }
+}
