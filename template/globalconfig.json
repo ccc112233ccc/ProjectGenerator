@@ -1,7 +1,7 @@
 {
     "name":"template",
     "config": {
-        "file_path": "template/config.json"
+        "file_path": "template/my2.json"
     },
     "solver": {
         "solver_path": "python3",
