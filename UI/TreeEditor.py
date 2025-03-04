@@ -59,6 +59,7 @@ class EditableTreeWidget(QTreeWidget):
         elif item_data["type"] == "int":
             # 如果是整数类型，创建一个 QSpinBox（数字输入框）
             spin_box = QSpinBox()
+            spin_box.setMaximum(1e7)
             spin_box.setValue(item_data["default"])
             spin_box.valueChanged.connect(
                 lambda value, item=item: self.on_int_changed(item, value))
@@ -66,6 +67,8 @@ class EditableTreeWidget(QTreeWidget):
         elif item_data["type"] == "float":
             # 如果是浮点数类型，创建一个 QDoubleSpinBox（浮点数输入框）
             double_spin_box = QDoubleSpinBox()
+            double_spin_box.setMaximum(1e7)  # 设置最大值
+            double_spin_box.setDecimals(6)  # 设置保留小数位数
             double_spin_box.setValue(item_data["default"])
             double_spin_box.valueChanged.connect(
                 lambda value, item=item: self.on_float_changed(item, value))
