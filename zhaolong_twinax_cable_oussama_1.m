@@ -4,9 +4,20 @@ u0=4*pi*1e-7 ;   % permeability.
 epsi=8.85e-12;   % permittivity.
 c0=299792458 ;   % speed of light in free space.
 
-% Ensure epsir and TanLoss are double precision
+% Ensure all inputs are double precision
+rw = double(rw);
+rsh = double(rsh);
 epsir = double(epsir);
 TanLoss = double(TanLoss);
+tsh = double(tsh);
+Lz = double(Lz);
+segmaAL = double(segmaAL);
+segmaCu = double(segmaCu);
+xd1 = double(xd1);
+xd2 = double(xd2);
+slot_d = double(slot_d);
+fmin = double(fmin);
+fmax = double(fmax);
 
 %%%%%% the cable parameters %%%%%%  
 %rw=0.415e-3/2 ; % (m) 0.535e-3/2   0.24e-3   0.2075e-3   %The radius of the inner wires.

@@ -12,4 +12,4 @@ slot_d = 0.07e-3;
 fmin = 1e6;
 fmax = 1e9;
 Np = 100;
-zhaolong_twinax_cable_oussama_1(rw,rsh,epsir,TanLoss,tsh,Lz,segmaAL,segmaCu,xd1,xd2,slot_d,fmin,fmax,Np)
+[s_params2,sscd21,sscd11,sscc21,sscc11,ssdd21,ssdd11,f] = zhaolong_twinax_cable_oussama_1(rw,rsh,epsir,TanLoss,tsh,Lz,segmaAL,segmaCu,xd1,xd2,slot_d,fmin,fmax,Np)

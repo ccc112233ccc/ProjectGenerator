@@ -1,4 +1,5 @@
 import matlab.engine
+import numpy as np
 
 
 def call_matlab_function(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, xd1, xd2, slot_d, fmin, fmax, Np):
@@ -8,6 +9,24 @@ def call_matlab_function(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, xd1
     )
     eng.quit()
     return s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f
+
+
+def save_results_to_file(results, filename):
+    s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = results
+    np.savez(filename, s_params2=s_params2, sscd21=sscd21, sscd11=sscd11,
+             sscc21=sscc21, sscc11=sscc11, ssdd21=ssdd21, ssdd11=ssdd11, f=f)
+
+
+def save_results_to_csv(results, filename_prefix):
+    s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = results
+    # np.savetxt(f"{filename_prefix}_s_params2.csv", s_params2, delimiter=",")
+    np.savetxt(f"{filename_prefix}_sscd21.csv", sscd21, delimiter=",")
+    np.savetxt(f"{filename_prefix}_sscd11.csv", sscd11, delimiter=",")
+    np.savetxt(f"{filename_prefix}_sscc21.csv", sscc21, delimiter=",")
+    np.savetxt(f"{filename_prefix}_sscc11.csv", sscc11, delimiter=",")
+    np.savetxt(f"{filename_prefix}_ssdd21.csv", ssdd21, delimiter=",")
+    np.savetxt(f"{filename_prefix}_ssdd11.csv", ssdd11, delimiter=",")
+    np.savetxt(f"{filename_prefix}_f.csv", f, delimiter=",")
 
 
 # Example usage
@@ -29,4 +48,5 @@ if __name__ == "__main__":
 
     results = call_matlab_function(
         rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, xd1, xd2, slot_d, fmin, fmax, Np)
-    print(results)
+    save_results_to_csv(results, 'results')
+    print("Results saved to CSV files")
