@@ -16,19 +16,22 @@ from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtCore import Qt
 
 class DataFramePlotterQt(QMainWindow):
-    def __init__(self):
+    def __init__(self,file_name=None):
         super().__init__()
         self.setWindowTitle("DataFrame Visualization Tool")
         self.setGeometry(100, 100, 1200, 800)
         
         # 初始化数据
         self.df = None
-        self.current_plot_type = "原始值"
+        self.current_plot_type = "分贝值"
         self.plot_mode = "覆盖"
         self.current_figure = None
         self.figure_count = 0
         
         self.init_ui()
+
+        if file_name:
+            self.load_csv_from_file(file_name)
         
     def init_ui(self):
         # 创建主窗口部件和布局
@@ -205,7 +208,10 @@ class DataFramePlotterQt(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(
             self, "选择CSV文件", "", "CSV Files (*.csv);;All Files (*)"
         )
-        
+        if file_name:
+            self.load_csv_from_file(file_name)
+    def load_csv_from_file(self, file_name=None):
+        """加载CSV文件"""
         if file_name:
             try:
                 self.df = pd.read_csv(file_name)

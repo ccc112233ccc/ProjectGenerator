@@ -1,4 +1,4 @@
-function [s_params2,sscd21,sscd11,sscc21,sscc11,ssdd21,ssdd11,f]=zhaolong_twinax_cable_oussama_1(rw,rsh,epsir,TanLoss,tsh,Lz,segmaAL,segmaCu,xd1,xd2,slot_d,fmin,fmax,Np)
+function [s_params2,sscd21,sscd11,sscc21,sscc11,ssdd21,ssdd11,f]=zhaolong_twinax_cable_oussama_1(rw,rsh,epsir,TanLoss,tsh,Lz,segmaAL,segmaCu,slot_d,fmin,fmax,Np)
 %%%% Free Space charachteristic%%%%
 u0=4*pi*1e-7 ;   % permeability. 
 epsi=8.85e-12;   % permittivity.
@@ -13,8 +13,6 @@ tsh = double(tsh);
 Lz = double(Lz);
 segmaAL = double(segmaAL);
 segmaCu = double(segmaCu);
-xd1 = double(xd1);
-xd2 = double(xd2);
 slot_d = double(slot_d);
 fmin = double(fmin);
 fmax = double(fmax);
@@ -34,6 +32,9 @@ fmax = double(fmax);
 %xd2=-D/2 ; % shifting the inner conductor 2 from the main coaxial axis
 %slot_d= 0.07e-3  ; % slot size  0.05e-3
 %%%%Averaged_per_unit_length_parameters_inner_system%%%%
+D = rsh;
+xd1 = D/2 + 0.05*D/2 ;
+xd2 = -D/2 ;
 Delta1=(rw^2-xd1^2-rsh^2)^2-4*(xd1*rsh)^2 ;
 alpha1=(-(rw^2-xd1^2-rsh^2)-sqrt(Delta1))/(2*xd1*rsh) ; 
 F1=1/(pi*log(alpha1*(alpha1*xd1-rsh)/(xd1-alpha1*rsh))) ;

@@ -18,6 +18,12 @@ class EditableTreeWidget(QTreeWidget):
         self.header().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # 第一列根据内容调整
         self.populate_tree()  # 填充树形控件
 
+        # 创建保存当前值按钮
+        save_current_button = QPushButton("保存当前值", self)
+        save_current_button.clicked.connect(self.save_current_values)
+        self.setItemWidget(QTreeWidgetItem(self), 1, save_current_button)
+        self.save_current_values()
+
     def populate_tree(self):
         """根据 JSON 数据填充树形控件"""
         for group_name, group_data in self.json_data.items():
@@ -67,7 +73,7 @@ class EditableTreeWidget(QTreeWidget):
         elif item_data["type"] == "float":
             # 如果是浮点数类型，创建一个 QDoubleSpinBox（浮点数输入框）
             double_spin_box = QDoubleSpinBox()
-            double_spin_box.setMaximum(1e7)  # 设置最大值
+            double_spin_box.setMaximum(1e20)  # 设置最大值
             double_spin_box.setDecimals(6)  # 设置保留小数位数
             double_spin_box.setValue(item_data["default"])
             double_spin_box.valueChanged.connect(
@@ -90,71 +96,87 @@ class EditableTreeWidget(QTreeWidget):
     def on_enum_changed(self, item, combo_box):
         """当下拉框选项改变时触发的槽函数"""
         selected_option = combo_box.currentText()  # 获取当前选中的选项
-        self.update_json_data(item, selected_option)  # 更新 JSON 数据
         print(f"树形项 '{item.text(0)}' 的选项已更改为: {selected_option}")
 
     def on_text_changed(self, item, line_edit):
         """当文本框内容改变时触发的槽函数"""
         new_value = line_edit.text()  # 获取当前文本
-        self.update_json_data(item, new_value)  # 更新 JSON 数据
         print(f"树形项 '{item.text(0)}' 的文本已更改为: {new_value}")
 
     def on_int_changed(self, item, value):
         """当整数输入框值改变时触发的槽函数"""
-        self.update_json_data(item, value)  # 更新 JSON 数据
         print(f"树形项 '{item.text(0)}' 的整数值已更改为: {value}")
 
     def on_float_changed(self, item, value):
         """当浮点数输入框值改变时触发的槽函数"""
-        self.update_json_data(item, value)  # 更新 JSON 数据
         print(f"树形项 '{item.text(0)}' 的浮点数值已更改为: {value}")
 
     def on_bool_changed(self, item, state):
         """当复选框状态改变时触发的槽函数"""
         new_value = state == Qt.Checked  # 获取当前状态
-        self.update_json_data(item, new_value)  # 更新 JSON 数据
         print(f"树形项 '{item.text(0)}' 的布尔值已更改为: {new_value}")
 
-    def update_json_data(self, item, new_value):
-        """更新 JSON 数据"""
-        # 获取树形项的路径
-        path = []
-        while item is not None:
-            path.insert(0, item.text(0))
-            item = item.parent()
+    def collect_current_values(self):
+        """收集所有子节点的当前值"""
+        def get_item_value(item):
+            widget = self.itemWidget(item, 1)
+            if isinstance(widget, QComboBox):
+                return widget.currentText()
+            elif isinstance(widget, QLineEdit):
+                return widget.text()
+            elif isinstance(widget, QSpinBox):
+                return widget.value()
+            elif isinstance(widget, QDoubleSpinBox):
+                return widget.value()
+            elif isinstance(widget, QCheckBox):
+                return widget.isChecked()
+            return None
 
-        # 根据路径更新 JSON 数据
-        data = self.json_data
-        for i, key in enumerate(path[:-1]):
-            if isinstance(data, list):
-                # 如果当前 data 是列表，则将 key 转换为整数索引
-                try:
-                    key = int(key)
-                except ValueError:
-                    # 如果 key 不是整数，说明路径有问题
-                    raise ValueError(f"路径 '{key}' 不是有效的列表索引")
-            if isinstance(data, (list, dict)):
-                data = data[key]
-            else:
-                raise ValueError(f"路径 '{key}' 对应的数据不是列表或字典")
+        def traverse_items(item):
+            values = {}
+            for i in range(item.childCount()):
+                child = item.child(i)
+                values[child.text(0)] = get_item_value(child)
+            return values
 
-        # 更新最终的值
-        if isinstance(data, list):
-            # 如果最终 data 是列表，则需要找到对应的字典项
-            for item_data in data:
-                if item_data.get("name") == path[-1]:
-                    if isinstance(item_data["default"], list):
-                        # 如果默认值是列表（向量类型），则将其拆分为列表
-                        item_data["default"] = list(
-                            map(float, new_value.split(",")))
-                    else:
-                        item_data["default"] = new_value
-                    break
-        elif isinstance(data, dict):
-            # 如果最终 data 是字典，则直接更新
-            data[path[-1]]["default"] = new_value
-        else:
-            raise ValueError(f"路径 '{path[-1]}' 对应的数据不是列表或字典")
+        current_values = {}
+        for i in range(self.topLevelItemCount()):
+            top_item = self.topLevelItem(i)
+            current_values.update(traverse_items(top_item))
+        return current_values
+
+    def save_current_values(self):
+        """保存当前值到 current.json 文件"""
+        self.current_values = self.collect_current_values()
+        with open("template/current.json", "w", encoding="utf-8") as file:
+            json.dump(self.current_values, file, indent=4, ensure_ascii=False)
+
+    def load_current_values(self, values: dict):
+        """加载当前值"""
+        def set_item_value(item, value):
+            widget = self.itemWidget(item, 1)
+            if isinstance(widget, QComboBox):
+                index = widget.findText(value)
+                if index != -1:
+                    widget.setCurrentIndex(index)
+            elif isinstance(widget, QLineEdit):
+                widget.setText(str(value))
+            elif isinstance(widget, QSpinBox):
+                widget.setValue(value)
+            elif isinstance(widget, QDoubleSpinBox):
+                widget.setValue(value)
+            elif isinstance(widget, QCheckBox):
+                widget.setChecked(value)
+
+        def traverse_items(item, values):
+            for i in range(item.childCount()):
+                child = item.child(i)
+                if child.text(0) in values:
+                    set_item_value(child, values[child.text(0)])
+
+        for i in range(self.topLevelItemCount()):
+            top_item = self.topLevelItem(i)
+            traverse_items(top_item, values)
 
 
 class MainWindow(QWidget):
@@ -176,25 +198,13 @@ class MainWindow(QWidget):
         self.tree_widget = EditableTreeWidget(json_file_path)
         layout.addWidget(self.tree_widget)
 
-        # 创建保存按钮
-        save_button = QPushButton("保存")
-        save_button.clicked.connect(self.save_data)
-        layout.addWidget(save_button, alignment=Qt.AlignRight)
-
         # 设置窗口的主布局
         self.setLayout(layout)
-
-    def save_data(self):
-        """保存 JSON 数据到文件"""
-        with open(self.json_file_path, "w", encoding="utf-8") as file:
-            json.dump(self.tree_widget.json_data, file,
-                      indent=4, ensure_ascii=False)
-        print("数据已保存！")
 
 
 if __name__ == "__main__":
     # 读取指定路径下的 JSON 文件
-    json_file_path = "template/my2.json"
+    json_file_path = "template/config.json"
 
     # 创建应用程序实例
     app = QApplication(sys.argv)

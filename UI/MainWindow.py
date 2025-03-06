@@ -219,10 +219,15 @@ class MainWindow(QMainWindow):
         status_text = "正常" if exit_status == QProcess.NormalExit else "异常"
         self.log_widget.add_log(f"进程结束，退出代码: {exit_code}，状态: {status_text}")
 
-    def show_plot_window(self):
+        result_file = 'template/' + \
+            self.tree_editor.current_values.get('结果文件', None)
+        self.log_widget.add_log(f"结果文件: {result_file}")
+        self.show_plot_window(result_file)
+
+    def show_plot_window(self, file_path=None):
         """显示绘图窗口"""
         # 创建绘图窗口
-        self.plot_window = DataFramePlotterQt()
+        self.plot_window = DataFramePlotterQt(file_path)
 
         # 显示窗口
         self.plot_window.show()
@@ -230,11 +235,14 @@ class MainWindow(QMainWindow):
     def open_cable_model_library(self):
         self.table_widget = TableWidget()
         self.table_widget.rowLoaded.connect(
-            self.load_image_into_structure_viewer)
+            self.load_model)
         self.table_widget.show()
 
-    def load_image_into_structure_viewer(self, paths):
-        self.structure_viewer.add_structures(paths)
+    def load_model(self, values):
+        self.tree_editor.load_current_values(values)
+        self.tree_editor.save_current_values()
+        self.structure_viewer.add_structure(
+            values.get('模型路径'))
 
     def restore_default_layout(self):
         """恢复默认的窗口布局"""

@@ -1,12 +1,12 @@
 {
     "name":"template",
     "config": {
-        "file_path": "template/my2.json"
+        "file_path": "template/config.json"
     },
     "solver": {
-        "solver_path": "python3",
+        "solver_path": "e:/pythonCode/ProjectGenerator/.venv/Scripts/python.exe",
         "pwd_dir": "template",
-        "solver_args": "runner.py"
+        "solver_args": "CableSolver.py"
     },
     "structure": {
         "structure_path": [

@@ -7,7 +7,7 @@ from PySide6.QtCore import Signal
 
 
 class TableWidget(QWidget):
-    rowLoaded = Signal(list)  # Define a signal to emit row data
+    rowLoaded = Signal(dict)  # Define a signal to emit row data
 
     def __init__(self, file_path="template/cables.xlsx"):
         super().__init__()
@@ -16,6 +16,8 @@ class TableWidget(QWidget):
         self.currentFile = None
         if file_path:
             self.loadFileFromPath(file_path)
+        self.setWindowTitle("线缆数据库")
+        self.resize(800, 600)  # 设置窗口默认大小
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -80,11 +82,11 @@ class TableWidget(QWidget):
         self.loadSheet(self.sheets[0])
 
     def loadSheet(self, sheetName):
-        df = pd.read_excel(self.currentFile, sheet_name=sheetName)
+        self.df = pd.read_excel(self.currentFile, sheet_name=sheetName)
         self.table.setRowCount(0)
-        self.table.setColumnCount(len(df.columns))
-        self.table.setHorizontalHeaderLabels(df.columns)
-        for rowIndex, row in df.iterrows():
+        self.table.setColumnCount(len(self.df.columns))
+        self.table.setHorizontalHeaderLabels(self.df.columns)
+        for rowIndex, row in self.df.iterrows():
             self.table.insertRow(rowIndex)
             for columnIndex, item in enumerate(row):
                 self.table.setItem(
@@ -92,15 +94,13 @@ class TableWidget(QWidget):
 
     def loadSelectedRow(self):
         selected_row = self.table.currentRow()
-        if selected_row >= 0:
-            row_data = []
-            for column in range(self.table.columnCount()):
-                item = self.table.item(selected_row, column)
-                if item:
-                    row_data.append(item.text())
-            print("Selected Row Data:", row_data)
-            file_path = ["template/coaxial.stl"]
-            self.rowLoaded.emit(file_path)  # Emit the signal with row data
+        # 得到当前行的数据，对应表头，返回字典
+        row_data = {}
+        for column in range(self.table.columnCount()):
+            row_data[self.table.horizontalHeaderItem(
+                column).text()] = self.df.iloc[selected_row, column]
+
+        self.rowLoaded.emit(row_data)
 
 
 if __name__ == "__main__":
