@@ -107,6 +107,36 @@
             "showtype": "number"
         }
     ],
+    "激励源参数":[
+        {
+            "type": "enum",
+            "name": "激励类型",
+            "options": [
+                "电压激励",
+                "电流激励"
+            ],
+            "default": "电压激励",
+            "showtype": "dropdown"
+        },
+        {
+            "type": "float",
+            "name": "激励幅度",
+            "default": 1.0,
+            "showtype": "number"
+        },
+        {
+            "type": "float",
+            "name": "激励频率",
+            "default": 1.0e9,
+            "showtype": "number"
+        },
+        {
+            "type": "float",
+            "name": "激励相位",
+            "default": 0.0,
+            "showtype": "number"
+        }
+    ],
     "仿真参数":[
         {
             "type": "float",

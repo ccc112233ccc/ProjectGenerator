@@ -16,7 +16,7 @@ class TableWidget(QWidget):
         self.currentFile = None
         if file_path:
             self.loadFileFromPath(file_path)
-        self.setWindowTitle("线缆数据库")
+        self.setWindowTitle("线缆模型库")
         self.resize(800, 600)  # 设置窗口默认大小
 
     def initUI(self):

@@ -1,5 +1,5 @@
 {
-    "name":"template",
+    "name":"线缆系统电磁兼容仿真配置可视化软件",
     "config": {
         "file_path": "template/config.json"
     },
