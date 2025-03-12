@@ -4,25 +4,15 @@ import pandas as pd
 import fire
 
 
-def call_matlab_function(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu,slot_d, fmin, fmax, Np):
-    print("rw", rw)
-    print("rsh", rsh)
-    print("epsir", epsir)
-    print("TanLoss", TanLoss)
-    print("tsh", tsh)
-    print("Lz", Lz)
-    print("segmaAL", segmaAL)
-    print("segmaCu", segmaCu)
-    print("slot_d", slot_d)
-    print("fmin", fmin)
-    print("fmax", fmax)
-    print("Np", Np)
+def call_matlab_function(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np):
     eng = matlab.engine.start_matlab()
     s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = eng.zhaolong_twinax_cable_oussama_1(
         rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np, nargout=8
     )
     eng.quit()
     return s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f
+
+
 def save_results_to_csv(results, filename):
     s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = results
     df = pd.DataFrame(
@@ -34,21 +24,24 @@ def save_results_to_csv(results, filename):
             "sscc11": np.array(sscc11).squeeze(),
             "ssdd21": np.array(ssdd21).squeeze(),
             "ssdd11": np.array(ssdd11).squeeze(),
-            "s11": np.array(s_params2).squeeze()[1,1],
-            "s21": np.array(s_params2).squeeze()[2,1],
-            "s12": np.array(s_params2).squeeze()[1,2],
-            "s22": np.array(s_params2).squeeze()[2,2],
+            "s11": np.array(s_params2).squeeze()[1, 1],
+            "s21": np.array(s_params2).squeeze()[2, 1],
+            "s12": np.array(s_params2).squeeze()[1, 2],
+            "s22": np.array(s_params2).squeeze()[2, 2],
         }
     )
     df.to_csv(f"{filename}", index=False)
 
-def zhaolong_twinax_cable_oussama_1(rw:float = 0.2075e-3, rsh: float = 1.42e-3, epsir: float = 2, TanLoss: float = 5e-4, tsh: float = 9e-6, Lz: float = 0.2, segmaAL: float = 38160000, segmaCu: float = 58130000, slot_d: float = 0.07e-3, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500, filename: str = "results"):
-    results = call_matlab_function(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np)
+
+def zhaolong_twinax_cable_oussama_1(rw: float = 0.2075e-3, rsh: float = 1.42e-3, epsir: float = 2, TanLoss: float = 5e-4, tsh: float = 9e-6, Lz: float = 0.2, segmaAL: float = 38160000, segmaCu: float = 58130000, slot_d: float = 0.07e-3, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500, filename: str = "results"):
+    results = call_matlab_function(
+        rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np)
     save_results_to_csv(results, filename)
 
 
 def zhaolong_twinax_cable_oussama_1_cli():
     fire.Fire(zhaolong_twinax_cable_oussama_1)
+
 
 def zhaolong_twinax_cable_oussama_1_from_json(json_path: str):
     import json
@@ -68,24 +61,9 @@ def zhaolong_twinax_cable_oussama_1_from_json(json_path: str):
     fmax = params["频率最大值"]
     Np = params["频率点数"]
     filename = params["结果文件"]
-    zhaolong_twinax_cable_oussama_1(rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np, filename)
-if __name__ == "__main__":
-    zhaolong_twinax_cable_oussama_1_from_json("current.json")
+    zhaolong_twinax_cable_oussama_1(
+        rw, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np, filename)
 
-    # rw = 0.2075e-3
-    # rsh = 1.42e-3
-    # epsir = 2
-    # TanLoss = 5e-4
-    # tsh = 9e-6
-    # Lz = 0.2
-    # segmaAL = 38160000
-    # segmaCu = 58130000
-    # xd1 = 0.0007455
-    # xd2 = -0.00071
-    # slot_d = 0.07e-3
-    # fmin = 1e6
-    # fmax = 1e9
-    # Np = 100
-    # filename = "results"
-    # 运行命令：
-    # python matlab_code.py --rw 0.2075e-3 --rsh 1.42e-3 --epsir 2 --TanLoss 5e-4 --tsh 9e-6 --Lz 0.2 --segmaAL 38160000 --segmaCu 58130000 --xd1 0.0007455 --xd2 -0.00071 --slot_d 0.07e-3 --fmin 1e6 --fmax 1e9 --Np 100 --filename results
+
+if __name__ == "__main__":
+    zhaolong_twinax_cable_oussama_1_from_json("./template/current.json")

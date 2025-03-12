@@ -1,3 +1,11 @@
+from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
+                               QHBoxLayout, QPushButton, QComboBox, QFileDialog, QListWidget, QLabel,
+                               QMdiArea, QMdiSubWindow)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QActionGroup
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,45 +14,38 @@ import matplotlib
 import numpy as np
 import os
 matplotlib.use('QtAgg')
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
-from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                              QHBoxLayout, QPushButton, QComboBox, QFileDialog, QListWidget, QLabel,
-                              QMdiArea, QMdiSubWindow)
-from PySide6.QtGui import QAction, QActionGroup
-from PySide6.QtCore import Qt
+
 
 class DataFramePlotterQt(QMainWindow):
-    def __init__(self,file_name=None):
+    def __init__(self, file_name=None):
         super().__init__()
         self.setWindowTitle("DataFrame Visualization Tool")
         self.setGeometry(100, 100, 1200, 800)
-        
+
         # 初始化数据
         self.df = None
-        self.current_plot_type = "分贝值"
+        self.current_plot_type = "原始值"
         self.plot_mode = "覆盖"
         self.current_figure = None
         self.figure_count = 0
-        
+
         self.init_ui()
 
         if file_name:
             self.load_csv_from_file(file_name)
-        
+
     def init_ui(self):
         # 创建主窗口部件和布局
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         layout = QHBoxLayout(main_widget)
-        
+
         # 创建左侧变量列表面板
         left_panel = QWidget()
         left_layout = QVBoxLayout(left_panel)
         left_layout.setSpacing(10)  # 设置组件之间的间距
         left_layout.setContentsMargins(10, 10, 10, 10)  # 添加边距
-        
+
         # 创建变量列表
         self.var_list = QListWidget()
         self.var_list.setStyleSheet("""
@@ -66,7 +67,7 @@ class DataFramePlotterQt(QMainWindow):
         """)
         self.var_list.setSelectionMode(QListWidget.SingleSelection)
         left_layout.addWidget(self.var_list, stretch=1)  # 添加stretch=1让列表扩展填充空间
-        
+
         # 创建轴选择区域（使用组框）
         axes_widget = QWidget()
         axes_widget.setStyleSheet("""
@@ -81,7 +82,7 @@ class DataFramePlotterQt(QMainWindow):
             }
         """)
         axes_layout = QVBoxLayout(axes_widget)
-        
+
         # X轴选择区域
         x_layout = QHBoxLayout()
         x_label_title = QLabel("X轴:")
@@ -90,7 +91,7 @@ class DataFramePlotterQt(QMainWindow):
         x_layout.addWidget(x_label_title)
         x_layout.addWidget(self.x_label)
         axes_layout.addLayout(x_layout)
-        
+
         # Y轴选择区域
         y_layout = QHBoxLayout()
         y_label_title = QLabel("Y轴:")
@@ -99,9 +100,9 @@ class DataFramePlotterQt(QMainWindow):
         y_layout.addWidget(y_label_title)
         y_layout.addWidget(self.y_label)
         axes_layout.addLayout(y_layout)
-        
+
         left_layout.addWidget(axes_widget)
-        
+
         # 添加按钮
         button_style = """
             QPushButton {
@@ -117,7 +118,7 @@ class DataFramePlotterQt(QMainWindow):
                 background-color: #004085;
             }
         """
-        
+
         button_layout = QHBoxLayout()
         select_x_btn = QPushButton("设为X轴")
         select_y_btn = QPushButton("设为Y轴")
@@ -128,88 +129,91 @@ class DataFramePlotterQt(QMainWindow):
         button_layout.addWidget(select_x_btn)
         button_layout.addWidget(select_y_btn)
         left_layout.addLayout(button_layout)
-        
+
         # 设置左侧面板的最小宽度
         left_panel.setMinimumWidth(200)
-        
+
         # 修改右侧面板为MDI区域
         self.mdi_area = QMdiArea()
         self.mdi_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.mdi_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        
+
         # 添加左右面板到主布局
         layout.addWidget(left_panel, stretch=1)
         layout.addWidget(self.mdi_area, stretch=3)
-        
+
         # 创建菜单栏
         self.create_menus()
-        
+
     def create_menus(self):
         menubar = self.menuBar()
-        
+
         # 文件菜单
         file_menu = menubar.addMenu('文件')
         open_action = QAction('打开CSV', self)
         open_action.setShortcut('Ctrl+O')
         open_action.triggered.connect(self.load_csv)
         file_menu.addAction(open_action)
-        
+
         # 添加清空图表选项
         clear_action = QAction('清空图表', self)
         clear_action.setShortcut('Ctrl+C')
         clear_action.triggered.connect(self.clear_current_plot)
         file_menu.addAction(clear_action)
-        
+
         # 绘图类型菜单
         plot_menu = menubar.addMenu('绘图类型')
         plot_types = ["原始值", "绝对值", "分贝值", "相位角"]
         plot_group = QActionGroup(self)
-        
+
         for plot_type in plot_types:
             action = QAction(plot_type, self, checkable=True)
-            action.triggered.connect(lambda checked, t=plot_type: self.set_plot_type(t))
+            action.triggered.connect(
+                lambda checked, t=plot_type: self.set_plot_type(t))
             plot_group.addAction(action)
             plot_menu.addAction(action)
             if plot_type == "原始值":
                 action.setChecked(True)
-        
+
         # 新增：绘图模式菜单
         mode_menu = menubar.addMenu('绘图模式')
         mode_group = QActionGroup(self)
-        
+
         for mode in ["覆盖", "追加", "新窗口"]:
             action = QAction(mode, self, checkable=True)
-            action.triggered.connect(lambda checked, m=mode: self.set_plot_mode(m))
+            action.triggered.connect(
+                lambda checked, m=mode: self.set_plot_mode(m))
             mode_group.addAction(action)
             mode_menu.addAction(action)
             if mode == "覆盖":
                 action.setChecked(True)
-    
+
     def set_plot_type(self, plot_type):
         """设置绘图类型并更新图表"""
         self.current_plot_type = plot_type
         self.update_plot()
-    
+
     def set_x_variable(self):
         """设置X轴变量"""
         current_item = self.var_list.currentItem()
         if current_item:
             self.x_label.setText(current_item.text())
             self.update_plot()
-    
+
     def set_y_variable(self):
         """设置Y轴变量"""
         current_item = self.var_list.currentItem()
         if current_item:
             self.y_label.setText(current_item.text())
             self.update_plot()
-    
+
     def load_csv(self):
         file_name, _ = QFileDialog.getOpenFileName(
             self, "选择CSV文件", "", "CSV Files (*.csv);;All Files (*)"
         )
         if file_name:
             self.load_csv_from_file(file_name)
+
     def load_csv_from_file(self, file_name=None):
         """加载CSV文件"""
         if file_name:
@@ -219,21 +223,20 @@ class DataFramePlotterQt(QMainWindow):
                 for col in self.df.columns:
                     try:
                         # 首先检查该列是否包含复数数据
-                        if 's' in str(col):
-                            self.df[col] = self.df[col].str.replace('im','j')
-                            self.df[col] = self.df[col].apply(literal_eval)
+                        self.df[col] = self.df[col].str.replace('im', 'j')
+                        self.df[col] = self.df[col].apply(literal_eval)
                     except Exception:
                         # 如果转换失败，保持原始数据
                         print(col, "转换失败")
                         continue
-                        
+
                 # 更新变量列表
                 self.var_list.clear()  # 清除现有项目
                 self.var_list.addItems(self.df.columns)  # 添加新的列名
-                
+
             except Exception as e:
                 print(f"错误: {str(e)}")
-    
+
     def set_plot_mode(self, mode):
         """设置绘图模式"""
         self.plot_mode = mode
@@ -244,30 +247,30 @@ class DataFramePlotterQt(QMainWindow):
         sub_window = QMdiSubWindow()
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        
+
         # 创建matplotlib图形和工具栏
         figure = Figure(figsize=(8, 6))
         canvas = FigureCanvas(figure)
         toolbar = NavigationToolbar(canvas, widget)
-        
+
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
-        
+
         sub_window.setWidget(widget)
         sub_window.setWindowTitle(f"图表 {self.figure_count}")
         self.mdi_area.addSubWindow(sub_window)
         sub_window.show()
-        
+
         return figure, canvas
 
     def update_plot(self):
         if self.df is None:
             return
-            
+
         try:
             x_col = self.x_label.text()
             y_col = self.y_label.text()
-            
+
             if x_col == "未选择" or y_col == "未选择":
                 return
 
@@ -293,7 +296,7 @@ class DataFramePlotterQt(QMainWindow):
                     ax = self.current_figure.add_subplot(111)
                 else:
                     ax = self.current_figure.axes[0]
-            
+
             # 绘图代码
             y_data = self.df[y_col]
             if self.current_plot_type == "绝对值":
@@ -308,10 +311,10 @@ class DataFramePlotterQt(QMainWindow):
             else:  # 原始值
                 y_plot = y_data
                 ylabel = y_col
-            
+
             # 绘制新的曲线
             ax.plot(self.df[x_col], y_plot, 'o-', label=ylabel)
-            
+
             # 更新轴标签和标题
             ax.set_xlabel(x_col)
             ax.set_ylabel(ylabel)
@@ -324,13 +327,17 @@ class DataFramePlotterQt(QMainWindow):
                     ax.set_title(f'{y_col} vs {x_col}')
                 elif y_col not in current_title:
                     ax.set_title(f'{current_title} & {y_col}')
-            
+
             ax.grid(True)
             ax.legend()  # 添加图例
-            
+
+            # 添加x轴单位为hz
+            ax.xaxis.set_major_formatter(
+                plt.FuncFormatter(lambda x, _: f'{x:.2e} Hz'))
+
             # 刷新画布
             current_canvas.draw()
-            
+
         except Exception as e:
             print(f"绘图错误: {str(e)}")
 
@@ -344,11 +351,13 @@ class DataFramePlotterQt(QMainWindow):
                 figure.clear()
                 canvas.draw()
 
+
 def main():
     app = QApplication(sys.argv)
     window = DataFramePlotterQt()
     window.show()
     sys.exit(app.exec())
 
+
 if __name__ == "__main__":
-    main() 
+    main()

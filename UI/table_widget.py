@@ -9,14 +9,14 @@ from PySide6.QtCore import Signal
 class TableWidget(QWidget):
     rowLoaded = Signal(dict)  # Define a signal to emit row data
 
-    def __init__(self, file_path="template/cables.xlsx"):
+    def __init__(self, file_path="models/models.xlsx"):
         super().__init__()
         self.initUI()
         self.sheets = []
         self.currentFile = None
         if file_path:
             self.loadFileFromPath(file_path)
-        self.setWindowTitle("线缆模型库")
+        self.setWindowTitle("models")
         self.resize(800, 600)  # 设置窗口默认大小
 
     def initUI(self):
@@ -25,21 +25,21 @@ class TableWidget(QWidget):
         self.layout.addWidget(self.table)
 
         self.menuBar = QMenuBar(self)
-        self.fileMenu = self.menuBar.addMenu("文件")
-        self.openAction = QAction("导入", self)
+        self.fileMenu = self.menuBar.addMenu("File")
+        self.openAction = QAction("Import", self)
         self.openAction.triggered.connect(self.loadFile)
         self.fileMenu.addAction(self.openAction)
 
-        self.sheetMenu = self.menuBar.addMenu("类型")
+        self.sheetMenu = self.menuBar.addMenu("Type")
 
-        self.loadAction = QAction("载入", self)
+        self.loadAction = QAction("Export", self)
         self.loadAction.triggered.connect(self.loadSelectedRow)
         self.fileMenu.addAction(self.loadAction)
 
         self.layout.setMenuBar(self.menuBar)
 
         self.setLayout(self.layout)
-        self.setWindowTitle("舰用线缆数据库")
+        self.setWindowTitle("Solver Models")
 
     def loadFile(self):
         options = QFileDialog.Options()
@@ -105,7 +105,7 @@ class TableWidget(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    file_path = "template/cables.xlsx"
+    file_path = "models/models.xlsx"
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
     window = TableWidget(file_path)

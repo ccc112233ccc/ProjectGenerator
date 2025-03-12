@@ -19,7 +19,7 @@ class EditableTreeWidget(QTreeWidget):
         self.populate_tree()  # 填充树形控件
 
         # 创建保存当前值按钮
-        save_current_button = QPushButton("保存当前值", self)
+        save_current_button = QPushButton("save", self)
         save_current_button.clicked.connect(self.save_current_values)
         self.setItemWidget(QTreeWidgetItem(self), 1, save_current_button)
         self.save_current_values()

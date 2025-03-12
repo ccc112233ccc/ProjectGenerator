@@ -12,7 +12,7 @@ import sys
 class OpacityDialog(QDialog):
     def __init__(self, current_opacity=1.0, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("设置透明度")
+        self.setWindowTitle("opacity")
         layout = QVBoxLayout(self)
 
         # 添加滑块和标签
@@ -25,15 +25,15 @@ class OpacityDialog(QDialog):
             lambda v: self.label.setText(f"{v}%")
         )
 
-        layout.addWidget(QLabel("透明度:"))
+        layout.addWidget(QLabel("opacity"))
         layout.addWidget(self.slider)
         layout.addWidget(self.label)
 
         # 添加确定和取消按钮
         button_layout = QHBoxLayout()
         from PySide6.QtWidgets import QPushButton
-        ok_button = QPushButton("确定")
-        cancel_button = QPushButton("取消")
+        ok_button = QPushButton("confirm")
+        cancel_button = QPushButton("cancel")
         ok_button.clicked.connect(self.accept)
         cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(ok_button)
@@ -65,46 +65,46 @@ class StructureViewer(QMainWindow):
         menubar = self.menuBar()
 
         # 文件菜单
-        file_menu = menubar.addMenu('文件')
-        open_action = QAction('打开结构', self)
+        file_menu = menubar.addMenu('File')
+        open_action = QAction('Open', self)
         open_action.setShortcut('Ctrl+O')
         open_action.triggered.connect(self.open_structures)
         file_menu.addAction(open_action)
 
         # 视图菜单
-        view_menu = menubar.addMenu('视图')
+        view_menu = menubar.addMenu('View')
 
         # 级联排列
-        cascade_action = QAction('级联排列', self)
+        cascade_action = QAction('Cascade', self)
         cascade_action.triggered.connect(self.mdi_area.cascadeSubWindows)
 
         # 平铺排列
-        tile_action = QAction('平铺排列', self)
+        tile_action = QAction('Tile', self)
         tile_action.triggered.connect(self.mdi_area.tileSubWindows)
 
         view_menu.addAction(cascade_action)
         view_menu.addAction(tile_action)
 
         # 编辑菜单
-        edit_menu = menubar.addMenu('编辑')
+        edit_menu = menubar.addMenu('Edit')
 
-        color_action = QAction('更改颜色', self)
+        color_action = QAction('Change Color', self)
         color_action.triggered.connect(self.change_color)
 
-        opacity_action = QAction('更改透明度', self)
+        opacity_action = QAction('Change Opacity', self)
         opacity_action.triggered.connect(self.change_opacity)
 
         edit_menu.addAction(color_action)
         edit_menu.addAction(opacity_action)
 
         # 在线模型菜单
-        online_menu = menubar.addMenu('在线模型')
-        open_url_action = QAction('打开在线模型', self)
+        online_menu = menubar.addMenu('Online Model')
+        open_url_action = QAction('Open URL', self)
         open_url_action.triggered.connect(self.open_online_model)
         online_menu.addAction(open_url_action)
 
     def open_online_model(self):
-        url, ok = QInputDialog.getText(self, '输入URL', '请输入模型的URL:')
+        url, ok = QInputDialog.getText(self, 'Open URL', 'URL:')
         if ok and url:
             self.add_online_model(url)
 
@@ -259,8 +259,9 @@ class StructureViewer(QMainWindow):
 
         # 加载并显示图片
         pixmap = QPixmap(path)
-        scaled_pixmap = pixmap.scaled(
-            400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # scaled_pixmap = pixmap.scaled(
+        #     400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaled_pixmap = pixmap
         image_label.setPixmap(scaled_pixmap)
 
         # 设置子窗口的部件和标题
