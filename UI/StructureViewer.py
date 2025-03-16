@@ -269,7 +269,7 @@ class StructureViewer(QMainWindow):
         sub_window.setWindowTitle(path.split('/')[-1])
 
         # 设置子窗口的最小尺寸
-        sub_window.setMinimumSize(300, 200)
+        # sub_window.setMinimumSize(300, 200)
 
         # 将子窗口添加到MDI区域
         self.mdi_area.addSubWindow(sub_window)

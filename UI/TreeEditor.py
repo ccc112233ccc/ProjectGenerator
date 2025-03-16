@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
     QApplication, QTreeWidget, QTreeWidgetItem, QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QWidget, QVBoxLayout, QPushButton, QHeaderView, QLabel
 )
 from PySide6.QtCore import Qt
+from UI.tree_style import TreeStyle
 
 
 class EditableTreeWidget(QTreeWidget):
@@ -16,6 +17,7 @@ class EditableTreeWidget(QTreeWidget):
         self.setHeaderHidden(True)  # 隐藏默认的表头
         self.header().setStretchLastSection(True)  # 最后一列自动填充剩余空间
         self.header().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # 第一列根据内容调整
+        TreeStyle.apply_tree_style(self)  # 应用树形控件样式
         self.populate_tree()  # 填充树形控件
 
         # 创建保存当前值按钮
