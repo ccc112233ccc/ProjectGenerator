@@ -1,6 +1,6 @@
 import inspect
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QPushButton, QLabel
+    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QPushButton, QLabel, QSizePolicy, QScrollArea, QMainWindow
 )
 from PySide6.QtCore import Qt
 
@@ -12,11 +12,21 @@ class FunctionParameterEditor(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle(f"configurations")
-        self.layout = QVBoxLayout(self)
-        self.form_layout = QFormLayout()
+        self.setWindowTitle(f"Configurations")
 
-        self.layout.addLayout(self.form_layout)
+        # 创建一个QScrollArea并将表单布局嵌入其中
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+
+        self.scroll_widget = QWidget()
+        self.scroll_area.setWidget(self.scroll_widget)
+
+        self.layout = QVBoxLayout(self)
+        self.layout.addWidget(self.scroll_area)
+
+        self.form_layout = QFormLayout(self.scroll_widget)
+        self.scroll_widget.setLayout(self.form_layout)
+
         self.set_ui()
 
     def set_ui(self):
@@ -81,5 +91,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     editor = FunctionParameterEditor(sample_function)
+    editor.resize(400, 300)
     editor.show()
+
     sys.exit(app.exec())

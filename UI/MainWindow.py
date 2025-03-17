@@ -209,8 +209,6 @@ class MainWindow(QMainWindow):
         self.table_widget.show()
 
     def load_model(self, values):
-        # self.tree_editor.load_current_values(values)
-        # self.tree_editor.save_current_values()
         self.structure_viewer.add_structure(
             values.get('Model Path'))
         self.log_widget.add_log(f"Model {values.get('Model Name')} loaded")

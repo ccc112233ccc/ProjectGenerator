@@ -259,9 +259,8 @@ class StructureViewer(QMainWindow):
 
         # 加载并显示图片
         pixmap = QPixmap(path)
-        # scaled_pixmap = pixmap.scaled(
-        #     400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        scaled_pixmap = pixmap
+        scaled_pixmap = pixmap.scaled(
+            800, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         image_label.setPixmap(scaled_pixmap)
 
         # 设置子窗口的部件和标题

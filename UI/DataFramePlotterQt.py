@@ -24,8 +24,8 @@ class DataFramePlotterQt(QMainWindow):
 
         # 初始化数据
         self.df = None
-        self.current_plot_type = "原始值"
-        self.plot_mode = "覆盖"
+        self.current_plot_type = "Original"
+        self.plot_mode = "Overlay"
         self.current_figure = None
         self.figure_count = 0
 
@@ -85,8 +85,8 @@ class DataFramePlotterQt(QMainWindow):
 
         # X轴选择区域
         x_layout = QHBoxLayout()
-        x_label_title = QLabel("X轴:")
-        self.x_label = QLabel("未选择")
+        x_label_title = QLabel("X-axis:")
+        self.x_label = QLabel("Not Selected")
         self.x_label.setStyleSheet("color: #666; padding: 3px;")
         x_layout.addWidget(x_label_title)
         x_layout.addWidget(self.x_label)
@@ -94,8 +94,8 @@ class DataFramePlotterQt(QMainWindow):
 
         # Y轴选择区域
         y_layout = QHBoxLayout()
-        y_label_title = QLabel("Y轴:")
-        self.y_label = QLabel("未选择")
+        y_label_title = QLabel("Y-axis:")
+        self.y_label = QLabel("Not Selected")
         self.y_label.setStyleSheet("color: #666; padding: 3px;")
         y_layout.addWidget(y_label_title)
         y_layout.addWidget(self.y_label)
@@ -120,8 +120,8 @@ class DataFramePlotterQt(QMainWindow):
         """
 
         button_layout = QHBoxLayout()
-        select_x_btn = QPushButton("设为X轴")
-        select_y_btn = QPushButton("设为Y轴")
+        select_x_btn = QPushButton("Set as X-axis")
+        select_y_btn = QPushButton("Set as Y-axis")
         select_x_btn.setStyleSheet(button_style)
         select_y_btn.setStyleSheet(button_style)
         select_x_btn.clicked.connect(self.set_x_variable)
@@ -149,21 +149,21 @@ class DataFramePlotterQt(QMainWindow):
         menubar = self.menuBar()
 
         # 文件菜单
-        file_menu = menubar.addMenu('文件')
-        open_action = QAction('打开CSV', self)
+        file_menu = menubar.addMenu('File')
+        open_action = QAction('Open CSV', self)
         open_action.setShortcut('Ctrl+O')
         open_action.triggered.connect(self.load_csv)
         file_menu.addAction(open_action)
 
         # 添加清空图表选项
-        clear_action = QAction('清空图表', self)
+        clear_action = QAction('Clear Plot', self)
         clear_action.setShortcut('Ctrl+C')
         clear_action.triggered.connect(self.clear_current_plot)
         file_menu.addAction(clear_action)
 
         # 绘图类型菜单
-        plot_menu = menubar.addMenu('绘图类型')
-        plot_types = ["原始值", "绝对值", "分贝值", "相位角"]
+        plot_menu = menubar.addMenu('Plot Type')
+        plot_types = ["Original", "Absolute", "Decibel", "Phase Angle"]
         plot_group = QActionGroup(self)
 
         for plot_type in plot_types:
@@ -172,20 +172,20 @@ class DataFramePlotterQt(QMainWindow):
                 lambda checked, t=plot_type: self.set_plot_type(t))
             plot_group.addAction(action)
             plot_menu.addAction(action)
-            if plot_type == "原始值":
+            if plot_type == "Original":
                 action.setChecked(True)
 
         # 新增：绘图模式菜单
-        mode_menu = menubar.addMenu('绘图模式')
+        mode_menu = menubar.addMenu('Plot Mode')
         mode_group = QActionGroup(self)
 
-        for mode in ["覆盖", "追加", "新窗口"]:
+        for mode in ["Overlay", "Append", "New Window"]:
             action = QAction(mode, self, checkable=True)
             action.triggered.connect(
                 lambda checked, m=mode: self.set_plot_mode(m))
             mode_group.addAction(action)
             mode_menu.addAction(action)
-            if mode == "覆盖":
+            if mode == "Overlay":
                 action.setChecked(True)
 
     def set_plot_type(self, plot_type):
@@ -209,7 +209,7 @@ class DataFramePlotterQt(QMainWindow):
 
     def load_csv(self):
         file_name, _ = QFileDialog.getOpenFileName(
-            self, "选择CSV文件", "", "CSV Files (*.csv);;All Files (*)"
+            self, "Select CSV File", "", "CSV Files (*.csv);;All Files (*)"
         )
         if file_name:
             self.load_csv_from_file(file_name)
@@ -235,7 +235,7 @@ class DataFramePlotterQt(QMainWindow):
                 self.var_list.addItems(self.df.columns)  # 添加新的列名
 
             except Exception as e:
-                print(f"错误: {str(e)}")
+                print(f"Error: {str(e)}")
 
     def set_plot_mode(self, mode):
         """设置绘图模式"""
@@ -271,11 +271,11 @@ class DataFramePlotterQt(QMainWindow):
             x_col = self.x_label.text()
             y_col = self.y_label.text()
 
-            if x_col == "未选择" or y_col == "未选择":
+            if x_col == "Not Selected" or y_col == "Not Selected":
                 return
 
             # 根据绘图模式决定操作
-            if self.plot_mode == "新窗口" or self.current_figure is None:
+            if self.plot_mode == "New Window" or self.current_figure is None:
                 self.current_figure, current_canvas = self.create_new_plot_window()
             else:
                 # 获取当前活动窗口的画布
@@ -287,10 +287,10 @@ class DataFramePlotterQt(QMainWindow):
                     self.current_figure, current_canvas = self.create_new_plot_window()
 
             # 根据模式决定是否清除图形
-            if self.plot_mode == "覆盖":
+            if self.plot_mode == "Overlay":
                 self.current_figure.clear()
                 ax = self.current_figure.add_subplot(111)
-            elif self.plot_mode in ["追加", "新窗口"]:
+            elif self.plot_mode in ["Append", "New Window"]:
                 # 获取现有的轴对象，如果没有则创建新的
                 if len(self.current_figure.axes) == 0:
                     ax = self.current_figure.add_subplot(111)
@@ -299,13 +299,13 @@ class DataFramePlotterQt(QMainWindow):
 
             # 绘图代码
             y_data = self.df[y_col]
-            if self.current_plot_type == "绝对值":
+            if self.current_plot_type == "Absolute":
                 y_plot = abs(y_data)
                 ylabel = f"|{y_col}|"
-            elif self.current_plot_type == "分贝值":
+            elif self.current_plot_type == "Decibel":
                 y_plot = 20 * np.log10(abs(y_data))
                 ylabel = f"{y_col} (dB)"
-            elif self.current_plot_type == "相位角":
+            elif self.current_plot_type == "Phase Angle":
                 y_plot = np.angle(y_data, deg=True)
                 ylabel = f"∠{y_col} (°)"
             else:  # 原始值
@@ -318,7 +318,7 @@ class DataFramePlotterQt(QMainWindow):
             # 更新轴标签和标题
             ax.set_xlabel(x_col)
             ax.set_ylabel(ylabel)
-            if self.plot_mode == "覆盖":
+            if self.plot_mode == "Overlay":
                 ax.set_title(f'{y_col} vs {x_col}')
             else:
                 # 追加模式下更新标题以反映多个变量
