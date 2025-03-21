@@ -35,11 +35,11 @@ class CableSolver:
         elif mode == 14:
             return CableSolver.JKEPJP85_SC
         elif mode == 15:
-            return CableSolver.JHYJPQ85_SC
+            return CableSolver.JKEPJPM85_SC
         elif mode == 16:
-            return CableSolver.JHYJPQ85_SC
+            return CableSolver.JHEPJPM85_SC
         elif mode == 17:
-            return CableSolver.JHYJPQ85_SC
+            return CableSolver.JKMEHP8H_45
         else:
             raise ValueError(f"Unknown mode: {mode}")
 
@@ -244,4 +244,55 @@ class CableSolver:
         :param Outer_Sheath_Radius: 外护套层外半径
         """
         pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JKEPJPM85_SC(Conductor_Radius, EPR_Tape_Radius, Insulation_Radius,
+                     Wrapping_Tape_Radius, Inner_Sheath_Radius,
+                     Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JKEPJPM85_SC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param EPR_Tape_Radius: EPR 绝缘带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Inner_Sheath_Radius: 内护套层半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JHEPJPM85_SC(Conductor_Radius, EPR_Tape_Radius, Insulation_Radius,
+                     Wrapping_Tape_Radius, Inner_Sheath_Radius,
+                     Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JHEPJPM85_SC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param EPR_Tape_Radius: EPR 绝缘带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Inner_Sheath_Radius: 内护套层半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JKMEHP8H_45(Conductor_Radius, EPR_Tape_Radius, Insulation_Radius,
+                    Wrapping_Tape_Radius, Inner_Sheath_Radius,
+                    Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JKMEHP8H_45 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param EPR_Tape_Radius: EPR 绝缘带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Inner_Sheath_Radius: 内护套层半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+
+
 
