@@ -74,8 +74,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.tree_dock)
 
         # 创建并添加 FunctionParameterEditor DockWidget
-        self.function_editor = FunctionParameterEditor(
-            CableSolver.get_solver(1))
+        self.function_editor = FunctionParameterEditor()
         self.function_dock = QDockWidget("Function Parameter Editor", self)
         self.function_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
         self.function_dock.setWidget(self.function_editor)
@@ -209,8 +208,9 @@ class MainWindow(QMainWindow):
         self.table_widget.show()
 
     def load_model(self, values):
-        self.structure_viewer.add_structure(
-            values.get('Model Path'))
+        self.structure_viewer.clear_all()
+        self.structure_viewer.add_structures(
+            values.get('Model Path').split('\n'))
         self.log_widget.add_log(f"Model {values.get('Model Name')} loaded")
         mode = values.get('ID')
         self.function_editor.change_function(CableSolver.get_solver(mode))
@@ -231,7 +231,7 @@ class MainWindow(QMainWindow):
         self.toggle_log_action.setChecked(True)
 
     def run_function_with_parameters(self):
-        self.log_widget.add_log("Function started")
+        self.log_widget.add_log("solver running...")
         self.function_runner = FunctionRunner(
             self.function_editor)
         self.function_runner.output_signal.connect(self.log_widget.add_log)

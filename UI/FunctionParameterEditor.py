@@ -1,6 +1,7 @@
 import inspect
+from enum import Enum
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QPushButton, QLabel, QSizePolicy, QScrollArea, QMainWindow
+    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QLabel, QSizePolicy, QScrollArea, QMainWindow
 )
 from PySide6.QtCore import Qt
 
@@ -54,6 +55,11 @@ class FunctionParameterEditor(QWidget):
                 input_widget = QCheckBox()
                 if param.default is not param.empty:
                     input_widget.setChecked(param.default)
+            elif issubclass(param.annotation, Enum):
+                input_widget = QComboBox()
+                input_widget.addItems([e.name for e in param.annotation])
+                if param.default is not param.empty:
+                    input_widget.setCurrentText(param.default.name)
             else:
                 input_widget = QLineEdit()
                 if param.default is not param.empty:
@@ -75,19 +81,27 @@ class FunctionParameterEditor(QWidget):
                 kwargs[name] = widget.value()
             elif isinstance(widget, QCheckBox):
                 kwargs[name] = widget.isChecked()
+            elif isinstance(widget, QComboBox):
+                enum_class = self.func.__annotations__[name]
+                kwargs[name] = enum_class[widget.currentText()]
             else:
                 kwargs[name] = widget.text()
 
         result = self.func(**kwargs)
-        print("Task completed")
+        print("Solver Completed")
         return result
 
 
 if __name__ == "__main__":
     import sys
 
-    def sample_function(a: int, b: float, c: str, d: bool):
-        return f"Received: a={a}, b={b}, c={c}, d={d}"
+    class SampleEnum(Enum):
+        OPTION_A = "Option A"
+        OPTION_B = "Option B"
+        OPTION_C = "Option C"
+
+    def sample_function(a: int, b: float, c: str, d: bool, e: SampleEnum):
+        return f"Received: a={a}, b={b}, c={c}, d={d}, e={e}"
 
     app = QApplication(sys.argv)
     editor = FunctionParameterEditor(sample_function)

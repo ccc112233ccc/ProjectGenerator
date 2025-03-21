@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (QMainWindow, QApplication, QMdiArea, QMdiSubWindow,
                                QWidget, QVBoxLayout, QFileDialog, QToolBar, QColorDialog,
-                               QSlider, QDialog, QLabel, QVBoxLayout, QHBoxLayout, QInputDialog)
+                               QSlider, QDialog, QLabel, QVBoxLayout, QHBoxLayout, QInputDialog,
+                               QGraphicsView, QGraphicsScene, QGraphicsPixmapItem)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QAction, QColor
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -210,7 +211,7 @@ class StructureViewer(QMainWindow):
             sub_window.setWindowTitle(path.split('/')[-1])
 
             # 设置子窗口的最小尺寸
-            sub_window.setMinimumSize(400, 300)
+            # sub_window.setMinimumSize(400, 300)
 
             # 将子窗口添加到MDI区域
             self.mdi_area.addSubWindow(sub_window)
@@ -242,33 +243,35 @@ class StructureViewer(QMainWindow):
                 }
             """)
 
-        # 创建图片标签
-        image_label = QLabel()
-        image_label.setAlignment(Qt.AlignCenter)
-        image_label.setStyleSheet("""
-                QLabel {
-                    padding: 10px;
-                    background: transparent;
-                }
-            """)
+        # 创建 QGraphicsView 和 QGraphicsScene
+        graphics_view = QGraphicsView(container)
+        graphics_scene = QGraphicsScene(graphics_view)
+        graphics_view.setScene(graphics_scene)
+
+        # 加载并显示图片
+        pixmap = QPixmap(path)
+        pixmap_item = QGraphicsPixmapItem(pixmap)
+        graphics_scene.addItem(pixmap_item)
+
+        # 设置 QGraphicsView 的属性
+        graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
+        graphics_view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        graphics_view.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+
+        # 添加缩放功能
+        graphics_view.wheelEvent = lambda event: self.zoom_image(event, graphics_view)
 
         # 创建布局
         layout = QVBoxLayout(container)
         layout.setContentsMargins(5, 5, 5, 5)
-        layout.addWidget(image_label)
-
-        # 加载并显示图片
-        pixmap = QPixmap(path)
-        scaled_pixmap = pixmap.scaled(
-            800, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        image_label.setPixmap(scaled_pixmap)
+        layout.addWidget(graphics_view)
 
         # 设置子窗口的部件和标题
         sub_window.setWidget(container)
         sub_window.setWindowTitle(path.split('/')[-1])
 
-        # 设置子窗口的最小尺寸
-        # sub_window.setMinimumSize(300, 200)
+        # 允许子窗口缩小到比原图片小
+        sub_window.setMinimumSize(100, 100)
 
         # 将子窗口添加到MDI区域
         self.mdi_area.addSubWindow(sub_window)
@@ -276,6 +279,18 @@ class StructureViewer(QMainWindow):
 
         if Zoom:
             sub_window.showMaximized()
+    def clear_all(self):
+        for sub_window in self.mdi_area.subWindowList():
+            sub_window.close()
+    def zoom_image(self, event, view):
+        """实现图片缩放功能"""
+        zoom_in_factor = 1.25
+        zoom_out_factor = 1 / zoom_in_factor
+
+        if event.angleDelta().y() > 0:
+            view.scale(zoom_in_factor, zoom_in_factor)
+        else:
+            view.scale(zoom_out_factor, zoom_out_factor)
 
     def add_images_from_paths(self, image_paths):
         """通过图片路径列表添加多个图片"""

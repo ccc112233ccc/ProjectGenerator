@@ -2,7 +2,15 @@ import matlab.engine
 import numpy as np
 import pandas as pd
 import fire
+from enum import Enum
 
+class GroundType(Enum):
+    Concrete = 1
+    Asphalt = 2
+    DrySoil = 3
+    WetSoil = 4
+    FreshWater = 5
+    SaltWater = 6
 
 class CableSolver:
 
@@ -117,7 +125,7 @@ class CableSolver:
 
     @staticmethod
     def JEPJ85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius, Wrapping_Tape_Radius,
-                   Inner_Sheath_Radius, Armor_Radius, Outer_Sheath_Radius):
+                   Inner_Sheath_Radius, Armor_Radius, Outer_Sheath_Radius, Ground_Type: GroundType = GroundType.Concrete):
         """
         计算 JEPJ85 NSC 电缆的几何参数
         :param Conductor_Radius: 导体半径
@@ -128,6 +136,7 @@ class CableSolver:
         :param Armor_Radius: 铠装半径
         :param Outer_Sheath_Radius: 外护套半径
         """
+        print(f"Groud Type: {Ground_Type}")
         pass  # 这里暂时不做任何计算，后续可以添加逻辑
 
     def JYJPJ80_SC1(Conductor_Radius, Insulation_Radius, Wrapping_Tape_Radius, Sheath_Radius, Armor_Radius):
