@@ -16,6 +16,30 @@ class CableSolver:
             return CableSolver.TWP_far_field
         elif mode == 4:
             return CableSolver.TBTWP_far_field
+        elif mode == 6:
+            return CableSolver.JEPJ85_NSC
+        elif mode == 7:
+            return CableSolver.JYJPJ80_SC1
+        elif mode == 8:
+            return CableSolver.JYJPJ85_SC1
+        elif mode == 9:
+            return CableSolver.JHRPJ_SC
+        elif mode == 10:
+            return CableSolver.JHYJPQ85_SC
+        elif mode == 11:
+            return CableSolver.JHYJ85_NSC
+        elif mode == 12:
+            return CableSolver.JHYJP85_NSC
+        elif mode == 13:
+            return CableSolver.JHQYJPA86_SC
+        elif mode == 14:
+            return CableSolver.JKEPJP85_SC
+        elif mode == 15:
+            return CableSolver.JHYJPQ85_SC
+        elif mode == 16:
+            return CableSolver.JHYJPQ85_SC
+        elif mode == 17:
+            return CableSolver.JHYJPQ85_SC
         else:
             raise ValueError(f"Unknown mode: {mode}")
 
@@ -90,3 +114,134 @@ class CableSolver:
             }
         )
         df.to_csv(f"results.csv", index=False)
+
+    @staticmethod
+    def JEPJ85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius, Wrapping_Tape_Radius,
+                   Inner_Sheath_Radius, Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JEPJ85 NSC 电缆的几何参数
+        :param Conductor_Radius: 导体半径
+        :param Mica_Tape_Radius: 云母带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带半径
+        :param Inner_Sheath_Radius: 内护套半径
+        :param Armor_Radius: 铠装半径
+        :param Outer_Sheath_Radius: 外护套半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JYJPJ80_SC1(Conductor_Radius, Insulation_Radius, Wrapping_Tape_Radius, Sheath_Radius, Armor_Radius):
+        """
+        计算 JYJPJ80_SC1 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带半径
+        :param Sheath_Radius: 内护套半径
+        :param Armor_Radius: 铠装半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JYJPJ85_SC1(Conductor_Radius, Insulation_Radius, Wrapping_Tape_Radius,
+                    Inner_Sheath_Radius, Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JYJPJ85_SC1 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带半径
+        :param Inner_Sheath_Radius: 内护套半径
+        :param Armor_Radius: 铠装半径
+        :param Outer_Sheath_Radius: 外护套半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JYJPJ85_SC(Conductor_Radius, Insulation_Radius, Wrapping_Tape_Radius, Sheath_Radius):
+        """
+        计算 JYJPJ85_SC7 七芯电缆的几何参数
+
+        :param Conductor_Radius: 单根导体的半径
+        :param Insulation_Radius: 绝缘层半径（包括导体）
+        :param Wrapping_Tape_Radius: 绕包带半径
+        :param Sheath_Radius: 外护套半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JHYJPQ85_SC(Conductor_Radius, Insulation_Radius, Insulation_Outer_Radius,
+                    Wrapping_Tape_Radius, Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JHYJPQ85_SC 七芯电缆的几何参数
+
+        :param Conductor_Radius: 单根导体的半径
+        :param Insulation_Radius: 绝缘层内半径（即导体外边界）
+        :param Insulation_Outer_Radius: 绝缘层外半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JHYJ85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius,
+                   Wrapping_Tape_Radius, Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JHYJ85_NSC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param Mica_Tape_Radius: 云母带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带半径
+        :param Armor_Radius: 铠装层半径
+        :param Outer_Sheath_Radius: 外护套层半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JHYJP85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius,
+                    Individual_Insulation_Radius, Wrapping_Tape_Radius,
+                    Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JHYJP85_NSC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param Mica_Tape_Radius: 云母带半径
+        :param Insulation_Radius: 绝缘层总半径
+        :param Individual_Insulation_Radius: 单芯绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JHQYJPA86_SC(Conductor_Radius, Insulation_Radius,
+                     Aluminum_Plastic_Composite_Tape_Radius, Inner_Sheath_Radius,
+                     Copper_Leakage_Wire_Radius, Wrapping_Tape_Radius,
+                     Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JHQYJPA86_SC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Aluminum_Plastic_Composite_Tape_Radius: 铝塑复合带半径
+        :param Inner_Sheath_Radius: 内护套层半径
+        :param Copper_Leakage_Wire_Radius: 铜泄露线半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
+    def JKEPJP85_SC(Conductor_Radius, EPR_Tape_Radius, Insulation_Radius,
+                    Wrapping_Tape_Radius, Inner_Sheath_Radius,
+                    Armor_Radius, Outer_Sheath_Radius):
+        """
+        计算 JKEPJP85_SC 电缆的几何参数
+
+        :param Conductor_Radius: 导体半径
+        :param EPR_Tape_Radius: EPR 绝缘带半径
+        :param Insulation_Radius: 绝缘层半径
+        :param Wrapping_Tape_Radius: 绕包带外半径
+        :param Inner_Sheath_Radius: 内护套层半径
+        :param Armor_Radius: 铠装层外半径
+        :param Outer_Sheath_Radius: 外护套层外半径
+        """
+        pass  # 这里暂时不做任何计算，后续可以添加逻辑
+
