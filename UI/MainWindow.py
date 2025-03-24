@@ -20,6 +20,18 @@ from UI.table_widget import TableWidget
 from UI.FunctionParameterEditor import FunctionParameterEditor
 
 
+class Stream:
+    """自定义流类，用于实时输出到信号"""
+    def __init__(self, signal):
+        self.signal = signal
+
+    def write(self, message):
+        if message.strip():  # 过滤掉空消息
+            self.signal.emit(message)
+
+    def flush(self):
+        pass
+
 class FunctionRunner(QThread):
     output_signal = Signal(str)
 
@@ -29,16 +41,15 @@ class FunctionRunner(QThread):
         self.working_directory = working_directory
 
     def run(self):
-        buffer = io.StringIO()
-        with contextlib.redirect_stdout(buffer):
-            original_directory = os.getcwd()
-            os.chdir("codes")
-            try:
-                self.function_editor()
-            finally:
-                os.chdir(original_directory)
-        output = buffer.getvalue()
-        self.output_signal.emit(output)
+        original_stdout = sys.stdout  # 保存原始标准输出
+        sys.stdout = Stream(self.output_signal)  # 替换标准输出为自定义流
+        original_directory = os.getcwd()
+        os.chdir("codes")
+        try:
+            self.function_editor()
+        finally:
+            os.chdir(original_directory)
+            sys.stdout = original_stdout  # 恢复原始标准输出
 
 
 class MainWindow(QMainWindow):
