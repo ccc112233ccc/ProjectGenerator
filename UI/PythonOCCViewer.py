@@ -18,8 +18,6 @@ class PythonOCCViewer(QtWidgets.QWidget):
         )
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addWidget(self.canva)
-        # 改变窗口大小
-        self.resize(800, 600)
 
     def load_step_file(self, filename: str) -> None:
         shapes_labels_colors = read_step_file_with_names_colors(filename)
@@ -30,10 +28,12 @@ class PythonOCCViewer(QtWidgets.QWidget):
                 shpt_lbl_color,
                 color=Quantity_Color(c.Red(), c.Green(), c.Blue(), Quantity_TOC_RGB),
             )
-app = QtWidgets.QApplication([])
-win = PythonOCCViewer()
 
-filename = "models/JEPJ85.step"
-win.load_step_file(filename)
-win.show()
-app.exec_()
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+    win = PythonOCCViewer()
+
+    filename = "models/JEPJ85.step"
+    win.load_step_file(filename)
+    win.show()
+    app.exec_()

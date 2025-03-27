@@ -4,9 +4,6 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QMdiArea, QMdiSubWindo
                                QGraphicsView, QGraphicsScene, QGraphicsPixmapItem)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QAction, QColor
-from PySide6.QtWebEngineWidgets import QWebEngineView
-import pyvista as pv
-from pyvistaqt import QtInteractor
 import sys
 
 
@@ -110,6 +107,7 @@ class StructureViewer(QMainWindow):
             self.add_online_model(url)
 
     def add_online_model(self, url):
+        from PySide6.QtWebEngineWidgets import QWebEngineView
         # 创建子窗口
         sub_window = QMdiSubWindow()
 
@@ -183,46 +181,48 @@ class StructureViewer(QMainWindow):
                 plotter.render()
 
     def add_structure_from_path(self, path, Zoom=False):
-        # 创建子窗口
+
         sub_window = QMdiSubWindow()
+        if path.endswith('.stp') or path.endswith('.step'):
+            from UI.PythonOCCViewer import PythonOCCViewer
 
-        # 创建容器
-        container = QWidget()
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
+            # 创建子窗口
+            
+            container = PythonOCCViewer()
+            container.load_step_file(path)
+        else:
+            import pyvista as pv
+            from pyvistaqt import QtInteractor
 
-        # 创建 PyVista 渲染窗口
-        plotter = QtInteractor(container)
-        layout.addWidget(plotter)
+            # 创建容器
+            container = QWidget()
+            layout = QVBoxLayout(container)
+            layout.setContentsMargins(0, 0, 0, 0)
 
-        try:
-            # 读取并显示结构
-            mesh = pv.read(path)
-            # 初始化透明度属性
-            mesh.opacity = 1.0
-            plotter.add_mesh(mesh, show_edges=True, opacity=1.0)
-            plotter.reset_camera()
+            # 创建 PyVista 渲染窗口
+            plotter = QtInteractor(container)
+            layout.addWidget(plotter)
 
-            # 存储mesh对象
-            self.meshes[sub_window] = mesh
+            try:
+                # 读取并显示结构
+                mesh = pv.read(path)
+                # 初始化透明度属性
+                mesh.opacity = 1.0
+                plotter.add_mesh(mesh, show_edges=True, opacity=1.0)
+                plotter.reset_camera()
 
-            # 设置子窗口的部件和标题
-            sub_window.setWidget(container)
-            sub_window.setWindowTitle(path.split('/')[-1])
+                # 存储mesh对象
+                self.meshes[sub_window] = mesh
 
-            # 设置子窗口的最小尺寸
-            # sub_window.setMinimumSize(400, 300)
-
-            # 将子窗口添加到MDI区域
-            self.mdi_area.addSubWindow(sub_window)
-            sub_window.show()
-
-            if Zoom:
-                sub_window.showMaximized()
-
-        except Exception as e:
-            print(f"Error loading structure {path}: {str(e)}")
-
+            except Exception as e:
+                print(f"Error loading structure {path}: {str(e)}")
+        # 设置子窗口的部件和标题
+        sub_window.setWidget(container)
+        sub_window.setWindowTitle(path.split('/')[-1])
+        self.mdi_area.addSubWindow(sub_window)
+        sub_window.show()
+        if Zoom:
+            sub_window.showMaximized()
     def add_structures_from_paths(self, structure_paths):
         """通过文件路径列表添加多个结构"""
         if not structure_paths:
@@ -305,7 +305,7 @@ class StructureViewer(QMainWindow):
             self,
             "选择结构文件",
             "",
-            "结构文件 (*.stl *.vtk *.vtm *.vtp *.obj *.ply *.wrl *.png *.jpg *.jpeg *.glb)"
+            "结构文件 (*.stl *.vtk *.vtm *.vtp *.obj *.ply *.wrl *.png *.jpg *.jpeg *.glb *.stp *.step)"
         )
 
         self.add_structures(file_paths)

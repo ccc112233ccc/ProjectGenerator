@@ -15,22 +15,9 @@ import contextlib
 from UI.TreeEditor import EditableTreeWidget
 from UI.StructureViewer import StructureViewer
 from UI.LogWidget import LogWidget
-from UI.DataFramePlotterQt import DataFramePlotterQt
 from UI.table_widget import TableWidget
 from UI.FunctionParameterEditor import FunctionParameterEditor
 
-
-class Stream:
-    """自定义流类，用于实时输出到信号"""
-    def __init__(self, signal):
-        self.signal = signal
-
-    def write(self, message):
-        if message.strip():  # 过滤掉空消息
-            self.signal.emit(message)
-
-    def flush(self):
-        pass
 
 class FunctionRunner(QThread):
     output_signal = Signal(str)
@@ -41,15 +28,16 @@ class FunctionRunner(QThread):
         self.working_directory = working_directory
 
     def run(self):
-        original_stdout = sys.stdout  # 保存原始标准输出
-        sys.stdout = Stream(self.output_signal)  # 替换标准输出为自定义流
-        original_directory = os.getcwd()
-        os.chdir("codes")
-        try:
-            self.function_editor()
-        finally:
-            os.chdir(original_directory)
-            sys.stdout = original_stdout  # 恢复原始标准输出
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            original_directory = os.getcwd()
+            os.chdir("codes")
+            try:
+                self.function_editor()
+            finally:
+                os.chdir(original_directory)
+        output = buffer.getvalue()
+        self.output_signal.emit(output)
 
 
 class MainWindow(QMainWindow):
@@ -84,8 +72,13 @@ class MainWindow(QMainWindow):
         self.tree_dock.setWidget(self.tree_editor)
         self.addDockWidget(Qt.LeftDockWidgetArea, self.tree_dock)
 
+        def test_func():
+            import time
+            for i in range(100):
+                time.sleep(1)
+                print(i)
         # 创建并添加 FunctionParameterEditor DockWidget
-        self.function_editor = FunctionParameterEditor()
+        self.function_editor = FunctionParameterEditor(test_func)
         self.function_dock = QDockWidget("Function Parameter Editor", self)
         self.function_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
         self.function_dock.setWidget(self.function_editor)
@@ -207,6 +200,7 @@ class MainWindow(QMainWindow):
     def show_plot_window(self, file_path=None):
         """显示绘图窗口"""
         # 创建绘图窗口
+        from UI.DataFramePlotterQt import DataFramePlotterQt
         self.plot_window = DataFramePlotterQt(file_path)
 
         # 显示窗口
@@ -225,6 +219,7 @@ class MainWindow(QMainWindow):
         self.log_widget.add_log(f"Model {values.get('Model Name')} loaded")
         mode = values.get('ID')
         self.function_editor.change_function(CableSolver.get_solver(mode))
+        self.structure_viewer.mdi_area.tileSubWindows()
 
     def restore_default_layout(self):
         """恢复默认的窗口布局"""

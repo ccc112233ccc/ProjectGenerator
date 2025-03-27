@@ -1,6 +1,5 @@
 import sys
 import csv
-import pandas as pd
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QMenuBar, QFileDialog, QMenu
 from PySide6.QtGui import QAction
 from PySide6.QtCore import Signal
@@ -72,6 +71,7 @@ class TableWidget(QWidget):
                         rowIndex, columnIndex, QTableWidgetItem(item))
 
     def loadExcel(self, fileName):
+        import pandas as pd
         self.sheets = pd.ExcelFile(fileName).sheet_names
         self.sheetMenu.clear()
         for sheet in self.sheets:
@@ -82,6 +82,7 @@ class TableWidget(QWidget):
         self.loadSheet(self.sheets[0])
 
     def loadSheet(self, sheetName):
+        import pandas as pd
         self.df = pd.read_excel(self.currentFile, sheet_name=sheetName)
         self.table.setRowCount(0)
         self.table.setColumnCount(len(self.df.columns))
