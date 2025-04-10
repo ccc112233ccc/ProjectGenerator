@@ -1,6 +1,7 @@
 import matlab.engine
 import pandas as pd
 from enum import Enum
+import numpy as np
 
 class GroundType(Enum):
     Concrete = 1
@@ -22,6 +23,8 @@ class CableSolver:
             return CableSolver.TWP_far_field
         elif mode == 4:
             return CableSolver.TBTWP_far_field
+        elif mode == 5:
+            return CableSolver.triphase_cable
         elif mode == 6:
             return CableSolver.JEPJ85_NSC
         elif mode == 7:
@@ -120,6 +123,9 @@ class CableSolver:
             }
         )
         df.to_csv(f"results.csv", index=False)
+
+    @staticmethod
+
 
     @staticmethod
     def JEPJ85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius, Wrapping_Tape_Radius,

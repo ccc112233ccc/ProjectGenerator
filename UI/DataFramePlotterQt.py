@@ -24,7 +24,7 @@ class DataFramePlotterQt(QMainWindow):
 
         # 初始化数据
         self.df = None
-        self.current_plot_type = "Original"
+        self.current_plot_type = "Decibel"
         self.plot_mode = "Overlay"
         self.current_figure = None
         self.figure_count = 0

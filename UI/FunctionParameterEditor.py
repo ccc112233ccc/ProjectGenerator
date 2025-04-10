@@ -48,7 +48,7 @@ class FunctionParameterEditor(QWidget):
             elif param.annotation == float:
                 input_widget = QDoubleSpinBox()
                 input_widget.setMaximum(1e30)
-                input_widget.setDecimals(6)
+                input_widget.setDecimals(10)
                 if param.default is not param.empty:
                     input_widget.setValue(param.default)
             elif param.annotation == bool:
