@@ -64,24 +64,20 @@ class MainWindow(QMainWindow):
         # 创建菜单栏
         self.create_menu()
 
-        # 创建并添加 TreeEditor DockWidget
-        self.tree_editor = EditableTreeWidget(
-            self.global_config['config']['file_path'])
-        self.tree_dock = QDockWidget("Tree Editor", self)
-        self.tree_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
-        self.tree_dock.setWidget(self.tree_editor)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.tree_dock)
+        # # 创建并添加 TreeEditor DockWidget
+        # self.tree_editor = EditableTreeWidget(
+        #     self.global_config['config']['file_path'])
+        # self.tree_dock = QDockWidget("Tree Editor", self)
+        # self.tree_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
+        # self.tree_dock.setWidget(self.tree_editor)
+        # self.addDockWidget(Qt.LeftDockWidgetArea, self.tree_dock)
 
-        def test_func():
-            import time
-            for i in range(100):
-                time.sleep(1)
-                print(i)
-        # 创建并添加 FunctionParameterEditor DockWidget
-        self.function_editor = FunctionParameterEditor(test_func)
+        # 创建并添加 FunctionParameterEditor DockWidget，宽度为 300
+        self.function_editor = FunctionParameterEditor()
         self.function_dock = QDockWidget("Function Parameter Editor", self)
         self.function_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
         self.function_dock.setWidget(self.function_editor)
+        self.function_dock.setMinimumWidth(300)  # 设置最小宽度为 300
         self.addDockWidget(Qt.LeftDockWidgetArea, self.function_dock)
 
         # 创建并添加 StructureViewer DockWidget
@@ -103,7 +99,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, self.log_dock)
 
         # 连接可见性改变信号到槽函数
-        self.tree_dock.visibilityChanged.connect(self.update_tree_action)
+        # self.tree_dock.visibilityChanged.connect(self.update_tree_action)
         self.structure_dock.visibilityChanged.connect(
             self.update_structure_action)
         self.log_dock.visibilityChanged.connect(self.update_log_action)
@@ -243,7 +239,13 @@ class MainWindow(QMainWindow):
         self.function_runner.output_signal.connect(self.log_widget.add_log)
         self.function_runner.start()
 
+        # 设置线程结束时的处理
+        self.function_runner.finished.connect(self.on_function_finished)
 
+    def on_function_finished(self):
+        self.log_widget.add_log("solver finished.")
+
+        self.show_plot_window("codes/results.csv")
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_window = MainWindow()

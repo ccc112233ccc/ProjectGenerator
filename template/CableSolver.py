@@ -1,7 +1,9 @@
-import matlab.engine
+# import matlab.engine
+from scipy.constants import mu_0, epsilon_0, c
 import pandas as pd
 from enum import Enum
 import numpy as np
+from UI.tools import Distance, Frequency, Conductivity, Permeability, Float, Int
 
 class GroundType(Enum):
     Concrete = 1
@@ -10,7 +12,6 @@ class GroundType(Enum):
     WetSoil = 4
     FreshWater = 5
     SaltWater = 6
-
 class CableSolver:
 
     @staticmethod
@@ -125,7 +126,25 @@ class CableSolver:
         df.to_csv(f"results.csv", index=False)
 
     @staticmethod
-
+    def triphase_cable(r_cond :Distance = 6.5e-3, rsh :Distance = 0.0309, Rsh :Distance = 0.0329, length :Distance = 2, cable1_x :Distance = 0.01443376, cable1_y :Distance = 0, cable2_x :Distance = -0.00721688, cable2_y :Distance = 0.0125, cable3_x :Distance = -0.00721688, cable3_y :Distance = -0.0125, sigma_cond :Conductivity = 5.813e7, sigma_shield :Conductivity = 3.816e7, mu :Permeability = mu_0, epsr :Float = 1, tan_delta :Float = 0, freq_min :Frequency = 1, freq_max :Frequency = 100e6, num_points :Int = 2001):
+        from codes.triphase_cable import calc_triphase_sparams_v2
+        # 计算三相电缆的 S 参数
+        s_params, S_mixed, freq_out = calc_triphase_sparams_v2(
+            r_cond, rsh, Rsh, length, cable1_x, cable1_y, cable2_x, cable2_y, cable3_x, cable3_y,
+            sigma_cond, sigma_shield, mu, epsr, tan_delta, freq_min, freq_max, num_points
+        )
+        # 将结果转换为 DataFrame
+        df = pd.DataFrame(
+            {
+                "f": freq_out,
+                "S11": s_params[0, 0, :],
+                "S12": s_params[0, 1, :],
+                "S21": s_params[1, 0, :],
+                "S22": s_params[1, 1, :],
+            }
+        )
+        # 保存结果到 CSV 文件
+        df.to_csv(f"results.csv", index=False)
 
     @staticmethod
     def JEPJ85_NSC(Conductor_Radius, Mica_Tape_Radius, Insulation_Radius, Wrapping_Tape_Radius,

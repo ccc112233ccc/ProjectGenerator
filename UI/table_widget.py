@@ -1,7 +1,7 @@
 import sys
 import csv
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QMenuBar, QFileDialog, QMenu
-from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QMenuBar, QFileDialog, QMenu, QLabel, QSizePolicy, QHBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtCore import Signal
 
 
@@ -16,10 +16,11 @@ class TableWidget(QWidget):
         if file_path:
             self.loadFileFromPath(file_path)
         self.setWindowTitle("models")
-        self.resize(800, 600)  # 设置窗口默认大小
+        self.setMinimumSize(800, 600)
+        
 
     def initUI(self):
-        self.layout = QVBoxLayout()
+        self.layout = QHBoxLayout()
         self.table = QTableWidget()
         self.layout.addWidget(self.table)
 
@@ -37,8 +38,59 @@ class TableWidget(QWidget):
 
         self.layout.setMenuBar(self.menuBar)
 
+         # 创建图片容器
+        container = QWidget()
+        container.setStyleSheet("""
+                QWidget {
+                    background: white;
+                }
+            """)
+
+        # 创建 QGraphicsView 和 QGraphicsScene
+        graphics_view = QGraphicsView(container)
+        self.graphics_scene = QGraphicsScene(graphics_view)
+        graphics_view.setScene(self.graphics_scene)
+        # 设置 QGraphicsView 的属性
+        graphics_view.setDragMode(QGraphicsView.ScrollHandDrag)
+        graphics_view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        graphics_view.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+
+        # 添加缩放功能
+        graphics_view.wheelEvent = lambda event: self.zoom_image(event, graphics_view)
+
+        # 设置布局
+        self.layout.addWidget(graphics_view)
+
         self.setLayout(self.layout)
         self.setWindowTitle("Solver Models")
+
+        # 设置表格的点击响应函数
+        self.table.itemClicked.connect(self.on_item_clicked)
+    def on_item_clicked(self, item):
+        # 获取当前行号
+        current_row = item.row()
+        
+        # 获取最后一列的内容
+        paths = self.table.item(current_row, self.table.columnCount() - 1).text()
+        path = paths.split("\n")[0]
+        
+        # 创建 QGraphicsPixmapItem
+        pixmap_item = QGraphicsPixmapItem()
+        pixmap = QPixmap(path)
+        pixmap_item.setPixmap(pixmap)
+        # 将图片添加到场景中
+        self.graphics_scene.clear()
+        self.graphics_scene.addItem(pixmap_item)
+
+    def zoom_image(self, event, view):
+        """实现图片缩放功能"""
+        zoom_in_factor = 1.25
+        zoom_out_factor = 1 / zoom_in_factor
+
+        if event.angleDelta().y() > 0:
+            view.scale(zoom_in_factor, zoom_in_factor)
+        else:
+            view.scale(zoom_out_factor, zoom_out_factor)
 
     def loadFile(self):
         options = QFileDialog.Options()

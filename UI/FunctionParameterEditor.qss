@@ -1,0 +1,118 @@
+/* 整体背景和滚动区域 */
+QWidget {
+    background-color: #f5f5f5; /* 浅灰色背景 */
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 12pt;
+    color: #333333; /* 深灰色字体 */
+}
+
+QScrollArea {
+    border: 1px solid #cccccc; /* 浅灰色边框 */
+    border-radius: 8px;
+    background-color: #ffffff; /* 白色背景 */
+}
+
+/* 表单中的标签 */
+QLabel {
+    font-weight: bold;
+    color: #555555; /* 中灰色字体 */
+}
+
+/* 输入框样式 */
+QLineEdit, QSpinBox, QDoubleSpinBox {
+    border: 1px solid #cccccc; /* 浅灰色边框 */
+    border-radius: 4px;
+    padding: 4px;
+    background-color: #ffffff; /* 白色背景 */
+}
+
+QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid #0078d7; /* 蓝色边框 */
+    background-color: #e6f7ff; /* 浅蓝色背景 */
+}
+
+/* 复选框样式 */
+QCheckBox {
+    spacing: 6px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:checked {
+    border: 1px solid #0078d7;
+    background-color: #0078d7;
+}
+
+/* 下拉框样式 */
+QComboBox {
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    padding: 4px;
+    background-color: #ffffff;
+}
+
+QComboBox:focus {
+    border: 1px solid #0078d7;
+    background-color: #e6f7ff;
+}
+
+QComboBox::drop-down {
+    border-left: 1px solid #cccccc;
+    background-color: #f5f5f5;
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    selection-background-color: #0078d7;
+    selection-color: #ffffff;
+}
+
+/* 按钮样式 */
+QPushButton {
+    border: 1px solid #0078d7;
+    border-radius: 4px;
+    padding: 6px 12px;
+    background-color: #0078d7;
+    color: #ffffff;
+}
+
+QPushButton:hover {
+    background-color: #005a9e;
+}
+
+QPushButton:pressed {
+    background-color: #003f73;
+}
+
+/* 滚动条样式 */
+QScrollBar:vertical {
+    border: none;
+    background: #f5f5f5;
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #cccccc;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #b3b3b3;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+}

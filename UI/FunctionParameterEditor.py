@@ -4,7 +4,8 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QLabel, QSizePolicy, QScrollArea, QMainWindow
 )
 from PySide6.QtCore import Qt
-
+from UI.tools import Distance, Frequency, Conductivity, Permeability, Float, Int
+from UI.UnitInputWidget import DistanceInputWidget, FrequencyInputWidget, ConductivityInputWidget, PermeabilityInputWidget, FloatInputWidget, IntInputWidget
 
 class FunctionParameterEditor(QWidget):
     def __init__(self, func=None, parent=None):
@@ -14,6 +15,9 @@ class FunctionParameterEditor(QWidget):
 
     def init_ui(self):
         self.setWindowTitle(f"Configurations")
+
+        with open("UI/FunctionParameterEditor.qss", "r", encoding="utf-8") as f:
+            self.setStyleSheet(f.read())
 
         # 创建一个QScrollArea并将表单布局嵌入其中
         self.scroll_area = QScrollArea(self)
@@ -40,17 +44,14 @@ class FunctionParameterEditor(QWidget):
         # Inspect the function's parameters
         sig = inspect.signature(self.func)
         for name, param in sig.parameters.items():
-            if param.annotation == int:
-                input_widget = QSpinBox()
-                input_widget.setMaximum(1e7)
+            if param.annotation == Int or param.annotation == int:
+                input_widget = IntInputWidget()
                 if param.default is not param.empty:
-                    input_widget.setValue(param.default)
-            elif param.annotation == float:
-                input_widget = QDoubleSpinBox()
-                input_widget.setMaximum(1e30)
-                input_widget.setDecimals(10)
+                    input_widget.setText(str(param.default))
+            elif param.annotation == Float or param.annotation == float:
+                input_widget = FloatInputWidget()
                 if param.default is not param.empty:
-                    input_widget.setValue(param.default)
+                    input_widget.setText(str(param.default))
             elif param.annotation == bool:
                 input_widget = QCheckBox()
                 if param.default is not param.empty:
@@ -60,11 +61,26 @@ class FunctionParameterEditor(QWidget):
                 input_widget.addItems([e.name for e in param.annotation])
                 if param.default is not param.empty:
                     input_widget.setCurrentText(param.default.name)
+            elif param.annotation == Distance:
+                input_widget = DistanceInputWidget()
+                if param.default is not param.empty:
+                    input_widget.setText(str(param.default))
+            elif param.annotation == Frequency:
+                input_widget = FrequencyInputWidget()
+                if param.default is not param.empty:
+                    input_widget.setText(str(param.default))
+            elif param.annotation == Conductivity:
+                input_widget = ConductivityInputWidget()
+                if param.default is not param.empty:
+                    input_widget.setText(str(param.default))
+            elif param.annotation == Permeability:
+                input_widget = PermeabilityInputWidget()
+                if param.default is not param.empty:
+                    input_widget.setText(str(param.default))
             else:
                 input_widget = QLineEdit()
                 if param.default is not param.empty:
-                    input_widget.setText(param.default)
-
+                    input_widget.setText(str(param.default))
             self.inputs[name] = input_widget
             self.form_layout.addRow(QLabel(name), input_widget)
 
@@ -75,17 +91,23 @@ class FunctionParameterEditor(QWidget):
     def __call__(self, *args, **kwds):
         kwargs = {}
         for name, widget in self.inputs.items():
-            if isinstance(widget, QSpinBox):
-                kwargs[name] = widget.value()
-            elif isinstance(widget, QDoubleSpinBox):
-                kwargs[name] = widget.value()
-            elif isinstance(widget, QCheckBox):
+            if isinstance(widget, QCheckBox):
                 kwargs[name] = widget.isChecked()
             elif isinstance(widget, QComboBox):
                 enum_class = self.func.__annotations__[name]
                 kwargs[name] = enum_class[widget.currentText()]
-            else:
+            elif isinstance(widget, QLineEdit):
                 kwargs[name] = widget.text()
+            elif isinstance(widget, IntInputWidget):
+                try:
+                    kwargs[name] = int(widget.text())
+                except ValueError:
+                    kwargs[name] = None
+            else:
+                try:
+                    kwargs[name] = float(widget.text())
+                except ValueError:
+                    kwargs[name] = None
 
         result = self.func(**kwargs)
         print("Solver Completed")

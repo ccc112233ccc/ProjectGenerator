@@ -227,7 +227,7 @@ class DataFramePlotterQt(QMainWindow):
                         self.df[col] = self.df[col].apply(literal_eval)
                     except Exception:
                         # 如果转换失败，保持原始数据
-                        print(col, "转换失败")
+                        print(col, "转换失败，保持原数据")
                         continue
 
                 # 更新变量列表

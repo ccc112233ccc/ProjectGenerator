@@ -251,7 +251,56 @@ def calc_triphase_sparams(r_cond, rsh, Rsh, length, pos,
 
     return s_params, S_mixed, freq_out
 
+def calc_triphase_sparams_v2(r_cond :float = 6.5e-3, rsh :float = 0.0309, Rsh :float = 0.0329, length :float = 2, cable1_x :float = 0.01443376, cable1_y :float = 0, cable2_x :float = -0.00721688, cable2_y :float = 0.0125, cable3_x :float = -0.00721688, cable3_y :float = -0.0125, sigma_cond :float = 5.813e7, sigma_shield :float = 3.816e7, mu :float = mu_0, epsr :float = 1, tan_delta :float = 0, freq_min :float = 1, freq_max :float = 100e6, num_points :int = 2001):
+    """
+    Calculate the S-parameters of a triphase cable.
 
+    Parameters:
+    -----------
+    r_cond : float
+        Radius of the conductor.
+    rsh : float
+        Radius of the shield.
+    Rsh : float
+        Shield resistance.
+    length : float
+        Length of the cable.
+    cable1_x, cable1_y, cable2_x, cable2_y, cable3_x, cable3_y : float
+        Coordinates of the three cables.
+    sigma_cond : float
+        Conductivity of the conductor.
+    sigma_shield : float
+        Conductivity of the shield.
+    mu : float
+        Permeability.
+    epsr : float
+        Relative permittivity.
+    tan_delta : float
+        Loss tangent.
+    freq_min : float
+        Minimum frequency for calculation.
+    freq_max : float
+        Maximum frequency for calculation.
+    num_points : int
+        Number of frequency points.
+
+    Returns:
+    --------
+    s_params : ndarray
+        S-parameters of the triphase cable.
+    S_mixed : ndarray
+        Mixed S-parameters.
+    freq_out : ndarray
+        Frequency points used for calculation.
+    """
+    
+    # Calculate positions based on input coordinates
+    pos = np.array([[cable1_x, cable1_y], [cable2_x, cable2_y], [cable3_x, cable3_y]])
+    
+    # Frequency range for calculation
+    freq = np.linspace(freq_min, freq_max, num_points)
+    
+    return calc_triphase_sparams(r_cond, rsh, Rsh, length, pos, sigma_cond, sigma_shield, mu, epsr, tan_delta, freq)
 # Example usage
 def main():
     freq = np.linspace(1,100e6, 2001)
@@ -272,12 +321,13 @@ def main():
         freq=freq
     )
 
-    plt.plot(freq_out * 1e-6, 20 * np.log10(np.abs(s_params[0,0, :])))
-    plt.xlabel('Frequency (MHz)')
-    plt.ylabel('S11 (dB)')
-    plt.title('S11 Parameter vs Frequency')
-    plt.grid(True)
-    plt.show()
+    # plt.plot(freq_out * 1e-6, 20 * np.log10(np.abs(s_params[0,0, :])))
+    # plt.xlabel('Frequency (MHz)')
+    # plt.ylabel('S11 (dB)')
+    # plt.title('S11 Parameter vs Frequency')
+    # plt.grid(True)
+    # plt.show()
+    return s_params, S_mixed, freq_out
 
 if __name__ == '__main__':
     main()
