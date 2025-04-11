@@ -2,6 +2,41 @@ import numpy as np
 from scipy.special import ive, kve  # besseli 和 besselk 函数
 from scipy.linalg import expm    # matrix exponential
 from scipy.linalg import block_diag
+def custom_expm(A):
+    from scipy.linalg import norm
+
+    if A.shape[0] != A.shape[1]:
+        raise ValueError("Matrix must be square")
+
+    ident = np.eye(A.shape[0], dtype=complex)
+    normA = norm(A, ord=np.inf)
+
+    # Pade coefficients for m = 13
+    b = [64764752532480000, 32382376266240000, 7771770303897600,
+         1187353796428800, 129060195264000, 10559470521600,
+         670442572800, 33522128640, 1323241920, 40840800,
+         960960, 16380, 182, 1]
+
+    # Scaling factor
+    maxnorm = 5.371920351148152
+    s = max(0, int(np.ceil(np.log2(normA / maxnorm))))
+    A_scaled = A / (2**s)
+
+    A2 = A_scaled @ A_scaled
+    A4 = A2 @ A2
+    A6 = A2 @ A4
+
+    U = A_scaled @ (A6 @ (b[13]*A6 + b[11]*A4 + b[9]*A2) + b[7]*A6 + b[5]*A4 + b[3]*A2 + b[1]*ident)
+    V = A6 @ (b[12]*A6 + b[10]*A4 + b[8]*A2) + b[6]*A6 + b[4]*A4 + b[2]*A2 + b[0]*ident
+
+    P = V + U
+    Q = V - U
+    F = np.linalg.solve(Q, P)
+
+    for _ in range(s):
+        F = F @ F
+
+    return F
 def twinax_cable_1(rw, D, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np):
     """双轴电缆传输线模型计算函数
     
@@ -69,6 +104,7 @@ def twinax_cable_1(rw, D, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d
     ChainA = np.zeros((4, 4, Np), dtype=complex)
 
     for idx, freq in enumerate(frequencies):
+        print(f"Processing frequency {idx+1}/{Np}: {freq} Hz")
         # 内导体1部分计算
         delta_val = 1 / np.sqrt(np.pi * freq * u0 * segmaCu)
         beta = (1 + 1j) / delta_val
@@ -120,7 +156,7 @@ def twinax_cable_1(rw, D, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d
         
         # 计算链参数矩阵
         A_matrix = -np.block([[np.zeros((2,2)), Z], [Y, np.zeros((2,2))]])
-        ChainA[:,:,idx] = expm(-A_matrix * Lz)
+        ChainA[:,:,idx] = custom_expm(-A_matrix * Lz)
 
     # 转换为S参数（需要实现abcd2s和s2smm函数）
     s_params2 = abcd2s(ChainA, 50)

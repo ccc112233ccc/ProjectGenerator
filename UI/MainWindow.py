@@ -19,6 +19,18 @@ from UI.table_widget import TableWidget
 from UI.FunctionParameterEditor import FunctionParameterEditor
 
 
+class RealTimeStringIO(io.StringIO):
+    def __init__(self, signal_handler):
+        super().__init__()
+        self.signal_handler = signal_handler
+
+    def write(self, text):
+        super().write(text)
+        # 实时发送输出信号
+        if text:
+            self.signal_handler(text)
+
+
 class FunctionRunner(QThread):
     output_signal = Signal(str)
 
@@ -28,16 +40,15 @@ class FunctionRunner(QThread):
         self.working_directory = working_directory
 
     def run(self):
-        buffer = io.StringIO()
-        with contextlib.redirect_stdout(buffer):
+        # 使用自定义的 StringIO 类
+        buffer = RealTimeStringIO(self.output_signal.emit)
+        with contextlib.redirect_stdout(buffer), contextlib.redirect_stderr(buffer):
             original_directory = os.getcwd()
             os.chdir("codes")
             try:
                 self.function_editor()
             finally:
                 os.chdir(original_directory)
-        output = buffer.getvalue()
-        self.output_signal.emit(output)
 
 
 class MainWindow(QMainWindow):
