@@ -7,6 +7,7 @@ from PySide6.QtCore import Signal
 
 class TableWidget(QWidget):
     rowLoaded = Signal(dict)  # Define a signal to emit row data
+    MAX_ROW_COUNT = 5
 
     def __init__(self, file_path="models/models.xlsx"):
         super().__init__()
@@ -144,7 +145,7 @@ class TableWidget(QWidget):
             for columnIndex, item in enumerate(row):
                 self.table.setItem(
                     rowIndex, columnIndex, QTableWidgetItem(str(item)))
-
+            
     def loadSelectedRow(self):
         selected_row = self.table.currentRow()
         # 得到当前行的数据，对应表头，返回字典

@@ -54,12 +54,9 @@ class CableSolver:
             raise ValueError(f"Unknown mode: {mode}")
 
     @staticmethod
-    def twinax_cable_1(rw: float = 0.415e-3/2, D: float = 1.42e-3, rsh: float = 1.42e-3, epsir: float = 2, TanLoss: float = 5e-4, tsh: float = 9e-6, Lz: float = 0.2, segmaAL: float = 38160000, segmaCu: float = 58130000, slot_d: float = 0.07e-3, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500):
-        eng = matlab.engine.start_matlab()
-        s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = eng.twinax_cable_1(
-            rw, D, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np, nargout=8
-        )
-        eng.quit()
+    def twinax_cable_1(rw: Distance = 0.415e-3/2, D: Distance = 1.42e-3, rsh: Distance = 1.42e-3, epsir: float = 2, TanLoss: float = 5e-4, tsh: Distance = 9e-6, Lz: Distance = 0.2, segmaAL: Conductivity = 38160000, segmaCu: Conductivity = 58130000, slot_d: Distance = 0.07e-3, fmin: Frequency = 1e6, fmax: Frequency = 1e9, Np: int = 500):
+        from codes.twinax_cable_1 import twinax_cable_1
+        s_params2, sscd21, sscd11, sscc21, sscc11, ssdd21, ssdd11, f = twinax_cable_1(rw, D, rsh, epsir, TanLoss, tsh, Lz, segmaAL, segmaCu, slot_d, fmin, fmax, Np)
         df = pd.DataFrame(
             {
                 "f": np.array(f).squeeze(),
@@ -78,11 +75,10 @@ class CableSolver:
         df.to_csv(f"results.csv", index=False)
 
     @staticmethod
-    def star_quad_cable(s: float = 2.5e-3, h: float = 1e-2, rw: float = 0.25e-3, p: float = 5e-2, Lz: float = 1, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500):
-        eng = matlab.engine.start_matlab()
-        ICM, IDM2, f = eng.star_quad_cable(
-            s, h, rw, p, Lz, fmin, fmax, Np, nargout=3)
-        eng.quit()
+    def star_quad_cable(s: Distance = 2.5e-3, h: Distance = 1e-2, rw: Distance = 0.25e-3, p: Distance = 5e-2, Lz: Distance = 1, fmin: Frequency = 1e6, fmax: Frequency = 1e9, Np: int = 500):
+        from codes.star_quad_cable import star_quad_cable
+        ICM, IDM2, f = star_quad_cable(
+            s, h, rw, p, Lz, fmin, fmax, Np)
 
         df = pd.DataFrame(
             {
@@ -94,12 +90,10 @@ class CableSolver:
         df.to_csv(f"results.csv", index=False)
 
     @staticmethod
-    def TWP_far_field(s: float = 0.25e-2, h: float = 1e-2, rw: float = 1.46e-9, p: float = 5e-2, Lz: float = 1, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500):
-        eng = matlab.engine.start_matlab()
-        CMC, DMC, f = eng.TWP_far_field(
+    def TWP_far_field(s: Distance = 0.25e-2, h: Distance = 1e-2, rw: Distance = 1.46e-9, p: Distance = 5e-2, Lz: Distance = 1, fmin: Frequency = 1e6, fmax: Frequency = 1e9, Np: int = 500):
+        from codes.TWP_far_field import TWP_far_field
+        CMC, DMC, f = TWP_far_field(
             s, h, rw, p, Lz, fmin, fmax, Np, nargout=3)
-        eng.quit()
-
         df = pd.DataFrame(
             {
                 "f": np.array(f).squeeze(),
@@ -110,12 +104,9 @@ class CableSolver:
         df.to_csv(f"results.csv", index=False)
 
     @staticmethod
-    def TBTWP_far_field(Lz: float = 1, acc: float = 0.0001, pb: float = 25e-3, p: float = 5e-3, s: float = 0.7e-3, sb: float = 1.5e-3, rw: float = 0.15e-3, h: float = 5e-3, fmin: float = 1e9, fmax: float = 10e9, Np: int = 500):
-        eng = matlab.engine.start_matlab()
-        CMC, DMC, f = eng.TBTWP_far_field(
-            Lz, acc, pb, p, s, sb, rw, h, fmin, fmax, Np, nargout=3)
-        eng.quit()
-
+    def TBTWP_far_field(Lz: Distance = 1, acc: Float = 0.0001, pb: Distance = 25e-3, p: Distance = 5e-3, s: Distance = 0.7e-3, sb: Distance = 1.5e-3, rw: Distance = 0.15e-3, h: Distance = 5e-3, fmin: Frequency = 1e6, fmax: Frequency = 1e9, Np: int = 500):
+        from codes.TBTWP_far_field import TBTWP_far_field
+        CMC, DMC, f = TBTWP_far_field(Lz, acc, pb, p, s, sb, rw, h, fmin, fmax, Np)
         df = pd.DataFrame(
             {
                 "f": np.array(f).squeeze(),
