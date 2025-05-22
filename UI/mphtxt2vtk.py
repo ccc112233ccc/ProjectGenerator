@@ -105,10 +105,7 @@ def mphtxt2vtk(filename):
     """
 
     mesh = read_mesh(filename)
-    # 检查mesh如果是2D网格，添加一个z坐标
-    if mesh['sdim'] == 2:
-        mesh['coord'] = np.hstack((mesh['coord'], np.zeros((mesh['num_node'], 1))))
-   
+    
     # 创建vtk文件，使用meshio库，将它转换为vtk格式
     import meshio
     new_mesh = meshio.Mesh(
