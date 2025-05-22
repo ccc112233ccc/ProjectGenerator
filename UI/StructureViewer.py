@@ -5,6 +5,9 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QMdiArea, QMdiSubWindo
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QAction, QColor
 import sys
+import pyvista as pv
+from pyvistaqt import QtInteractor
+from UI.mphtxt2vtk import mphtxt2vtk
 
 
 class OpacityDialog(QDialog):
@@ -191,9 +194,6 @@ class StructureViewer(QMainWindow):
             container = PythonOCCViewer()
             container.load_step_file(path)
         else:
-            import pyvista as pv
-            from pyvistaqt import QtInteractor
-
             # 创建容器
             container = QWidget()
             layout = QVBoxLayout(container)
@@ -205,7 +205,13 @@ class StructureViewer(QMainWindow):
 
             try:
                 # 读取并显示结构
-                mesh = pv.read(path)
+                if path.endswith('.mphtxt'):
+                    # 处理mphtxt文件
+                    mesh = mphtxt2vtk(path)
+                    mesh = pv.from_meshio(mesh)
+                else:
+                    # 处理其他格式文件
+                    mesh = pv.read(path)
                 # 初始化透明度属性
                 mesh.opacity = 1.0
                 plotter.add_mesh(mesh, show_edges=True, opacity=1.0)
@@ -305,7 +311,7 @@ class StructureViewer(QMainWindow):
             self,
             "选择结构文件",
             "",
-            "结构文件 (*.stl *.vtk *.vtm *.vtp *.obj *.ply *.wrl *.png *.jpg *.jpeg *.glb *.stp *.step)"
+            "结构文件 (*.stl *.vtk *.vtm *.vtp *.obj *.ply *.wrl *.png *.jpg *.jpeg *.glb *.stp *.step *.mphtxt);"
         )
 
         self.add_structures(file_paths)

@@ -1,7 +1,7 @@
 import inspect
 from enum import Enum
 from PySide6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QLabel, QSizePolicy, QScrollArea, QMainWindow
+    QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QLabel, QSizePolicy, QScrollArea, QPushButton
 )
 from PySide6.QtCore import Qt
 from UI.tools import Distance, Frequency, Conductivity, Permeability, Float, Int
@@ -25,9 +25,12 @@ class FunctionParameterEditor(QWidget):
 
         self.scroll_widget = QWidget()
         self.scroll_area.setWidget(self.scroll_widget)
-
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.scroll_area)
+
+        # self.button = QPushButton("Run")
+        # self.layout.addWidget(self.button)
+        # self.button.clicked.connect(self.test_function)
 
         self.form_layout = QFormLayout(self.scroll_widget)
         self.scroll_widget.setLayout(self.form_layout)
@@ -88,7 +91,7 @@ class FunctionParameterEditor(QWidget):
         self.func = func
         self.set_ui()
 
-    def __call__(self, *args, **kwds):
+    def get_kargs(self):
         kwargs = {}
         for name, widget in self.inputs.items():
             if isinstance(widget, QCheckBox):
@@ -108,12 +111,14 @@ class FunctionParameterEditor(QWidget):
                     kwargs[name] = float(widget.text())
                 except ValueError:
                     kwargs[name] = None
-
+        return kwargs
+    def __call__(self, *args, **kwds):
+        
+        kwargs = self.get_kargs()
+        print("Solver Started")
         result = self.func(**kwargs)
         print("Solver Completed")
         return result
-
-
 if __name__ == "__main__":
     import sys
 

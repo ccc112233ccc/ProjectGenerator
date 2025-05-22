@@ -5,7 +5,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt, QProcess, QDir, QThread, Signal
 import sys
 import json
-from template.CableSolver import CableSolver
+from template.Solver import Solver
 import os
 import io
 import contextlib
@@ -17,6 +17,7 @@ from UI.StructureViewer import StructureViewer
 from UI.LogWidget import LogWidget
 from UI.table_widget import TableWidget
 from UI.FunctionParameterEditor import FunctionParameterEditor
+from UI.TabMenuWidget import TabMenuWidget
 
 
 class RealTimeStringIO(io.StringIO):
@@ -59,10 +60,6 @@ class MainWindow(QMainWindow):
             open(global_config_path, 'r', encoding='utf-8'))
         self.name = self.global_config.get('name', '')
 
-        # 加载结构图片
-        self.structure_paths = self.global_config.get(
-            'structure', {}).get('structure_path', [])
-
         self.init_ui()
         # 保存初始布局状态
         self.default_state = self.saveState()
@@ -75,13 +72,12 @@ class MainWindow(QMainWindow):
         # 创建菜单栏
         self.create_menu()
 
-        # # 创建并添加 TreeEditor DockWidget
-        # self.tree_editor = EditableTreeWidget(
-        #     self.global_config['config']['file_path'])
-        # self.tree_dock = QDockWidget("Tree Editor", self)
-        # self.tree_dock.setFeatures(QDockWidget.DockWidgetClosable)  # 只允许关闭
-        # self.tree_dock.setWidget(self.tree_editor)
-        # self.addDockWidget(Qt.LeftDockWidgetArea, self.tree_dock)
+        # 创建并添加 TabMenuWidget DockWidget
+        self.tab_menu_widget = TabMenuWidget()
+        self.tab_menu_dock = QDockWidget("Tab Menu", self)
+        self.tab_menu_dock.setFeatures(QDockWidget.DockWidgetClosable) # 只允许关闭
+        self.tab_menu_dock.setWidget(self.tab_menu_widget)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.tab_menu_dock)
 
         # 创建并添加 FunctionParameterEditor DockWidget，宽度为 300
         self.function_editor = FunctionParameterEditor()
@@ -99,9 +95,6 @@ class MainWindow(QMainWindow):
         self.structure_dock.setWidget(self.structure_viewer)
         self.addDockWidget(Qt.RightDockWidgetArea, self.structure_dock)
 
-        # 加载默认的结构图片
-        self.structure_viewer.add_structures(self.structure_paths)
-
         # 创建并添加 LogWidget DockWidget
         self.log_widget = LogWidget()
         self.log_dock = QDockWidget("Log", self)
@@ -110,10 +103,13 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, self.log_dock)
 
         # 连接可见性改变信号到槽函数
-        # self.tree_dock.visibilityChanged.connect(self.update_tree_action)
         self.structure_dock.visibilityChanged.connect(
             self.update_structure_action)
         self.log_dock.visibilityChanged.connect(self.update_log_action)
+        self.tab_menu_dock.visibilityChanged.connect(
+            self.update_tab_menu_action)
+        self.function_dock.visibilityChanged.connect(
+            self.update_tree_action)
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -121,11 +117,18 @@ class MainWindow(QMainWindow):
         # 视图菜单
         view_menu = menubar.addMenu('View')
 
+
+        # TabMenuWidget 显示/隐藏
+        self.tab_menu_action = QAction(
+            'Tab Menu', self, checkable=True)
+        self.tab_menu_action.setChecked(True)
+        self.tab_menu_action.triggered.connect(self.toggle_tab_menu_dock)
+
         # TreeEditor 显示/隐藏
         self.toggle_tree_action = QAction(
             'Tree Editor', self, checkable=True)
         self.toggle_tree_action.setChecked(True)
-        self.toggle_tree_action.triggered.connect(self.toggle_tree_dock)
+        self.toggle_tree_action.triggered.connect(self.toggle_function_dock)
 
         # StructureViewer 显示/隐藏
         self.toggle_structure_action = QAction(
@@ -144,6 +147,8 @@ class MainWindow(QMainWindow):
         restore_layout_action.setShortcut('Ctrl+R')  # 添加快捷键
         restore_layout_action.triggered.connect(self.restore_default_layout)
 
+        # 添加菜单项
+        view_menu.addAction(self.tab_menu_action)
         view_menu.addAction(self.toggle_tree_action)
         view_menu.addAction(self.toggle_structure_action)
         view_menu.addAction(self.toggle_log_action)
@@ -159,31 +164,28 @@ class MainWindow(QMainWindow):
         run_action.triggered.connect(self.run_function_with_parameters)
         execute_menu.addAction(run_action)
 
-        # 添加绘图菜单
-        plot_menu = menubar.addMenu('Plot')
-
-        # 添加 plot 动作
-        plot_action = QAction('Plot', self)
-        plot_action.setShortcut('Ctrl+P')  # 添加快捷键
-        plot_action.triggered.connect(self.show_plot_window)
-        plot_menu.addAction(plot_action)
-
         # 模型菜单
         model_menu = menubar.addMenu('Model')
 
         # 线缆模型库按钮
-        cable_model_action = QAction('Open Cable Model Library', self)
-        cable_model_action.triggered.connect(self.open_cable_model_library)
+        cable_model_action = QAction('Open Model Library', self)
+        cable_model_action.triggered.connect(self.open_model_library)
         model_menu.addAction(cable_model_action)
 
-    def toggle_tree_dock(self):
-        self.tree_dock.setVisible(not self.tree_dock.isVisible())
+    def toggle_function_dock(self):
+        self.function_dock.setVisible(not self.function_dock.isVisible())
+
+    def toggle_tab_menu_dock(self):
+        self.tab_menu_dock.setVisible(not self.tab_menu_dock.isVisible())
 
     def toggle_structure_dock(self):
         self.structure_dock.setVisible(not self.structure_dock.isVisible())
 
     def toggle_log_dock(self):
         self.log_dock.setVisible(not self.log_dock.isVisible())
+
+    def update_tab_menu_action(self, visible):
+        self.tab_menu_action.setChecked(visible)
 
     def update_tree_action(self, visible):
         self.toggle_tree_action.setChecked(visible)
@@ -204,16 +206,7 @@ class MainWindow(QMainWindow):
         data = self.process.readAllStandardError().data().decode()
         self.log_widget.add_log(data.strip(), "ERROR")
 
-    def show_plot_window(self, file_path=None):
-        """显示绘图窗口"""
-        # 创建绘图窗口
-        from UI.DataFramePlotterQt import DataFramePlotterQt
-        self.plot_window = DataFramePlotterQt(file_path)
-
-        # 显示窗口
-        self.plot_window.show()
-
-    def open_cable_model_library(self):
+    def open_model_library(self):
         self.table_widget = TableWidget()
         self.table_widget.rowLoaded.connect(
             self.load_model)
@@ -225,15 +218,16 @@ class MainWindow(QMainWindow):
             values.get('Model Path').split('\n'))
         self.log_widget.add_log(f"Model {values.get('Model Name')} loaded")
         mode = values.get('ID')
-        self.function_editor.change_function(CableSolver.get_solver(mode))
+        self.function_editor.change_function(Solver.get_solver(mode))
         self.structure_viewer.mdi_area.tileSubWindows()
 
     def restore_default_layout(self):
         """恢复默认的窗口布局"""
         # 确保所有 dock widgets 都可见
-        self.tree_dock.setVisible(True)
+        self.tab_menu_widget.setVisible(True)
         self.structure_dock.setVisible(True)
         self.log_dock.setVisible(True)
+        self.function_dock.setVisible(True)
 
         # 恢复到初始布局状态
         self.restoreState(self.default_state)
@@ -242,6 +236,7 @@ class MainWindow(QMainWindow):
         self.toggle_tree_action.setChecked(True)
         self.toggle_structure_action.setChecked(True)
         self.toggle_log_action.setChecked(True)
+        self.tab_menu_action.setChecked(True)
 
     def run_function_with_parameters(self):
         self.log_widget.add_log("solver running...")
@@ -256,7 +251,7 @@ class MainWindow(QMainWindow):
     def on_function_finished(self):
         self.log_widget.add_log("solver finished.")
 
-        self.show_plot_window("codes/results.csv")
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_window = MainWindow()

@@ -9,7 +9,7 @@ class TableWidget(QWidget):
     rowLoaded = Signal(dict)  # Define a signal to emit row data
     MAX_ROW_COUNT = 5
 
-    def __init__(self, file_path="models/models.xlsx"):
+    def __init__(self, file_path="template/models.xlsx"):
         super().__init__()
         self.initUI()
         self.sheets = []
