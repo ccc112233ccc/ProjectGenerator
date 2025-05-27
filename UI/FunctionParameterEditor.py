@@ -4,8 +4,8 @@ from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox, QComboBox, QLabel, QSizePolicy, QScrollArea, QPushButton
 )
 from PySide6.QtCore import Qt
-from UI.tools import Distance, Frequency, Conductivity, Permeability, Float, Int
-from UI.UnitInputWidget import DistanceInputWidget, FrequencyInputWidget, ConductivityInputWidget, PermeabilityInputWidget, FloatInputWidget, IntInputWidget
+from UI.tools import Distance, Frequency, Conductivity, Permeability, Float, Int, FilePath
+from UI.UnitInputWidget import DistanceInputWidget, FrequencyInputWidget, ConductivityInputWidget, PermeabilityInputWidget, FloatInputWidget, IntInputWidget,FileInputWidget
 
 class FunctionParameterEditor(QWidget):
     def __init__(self, func=None, parent=None):
@@ -80,6 +80,10 @@ class FunctionParameterEditor(QWidget):
                 input_widget = PermeabilityInputWidget()
                 if param.default is not param.empty:
                     input_widget.setText(str(param.default))
+            elif param.annotation == FilePath:
+                input_widget = FileInputWidget()
+                if param.default is not param.empty:
+                    input_widget.setText(str(param.default))
             else:
                 input_widget = QLineEdit()
                 if param.default is not param.empty:
@@ -99,18 +103,10 @@ class FunctionParameterEditor(QWidget):
             elif isinstance(widget, QComboBox):
                 enum_class = self.func.__annotations__[name]
                 kwargs[name] = enum_class[widget.currentText()]
-            elif isinstance(widget, QLineEdit):
+            elif isinstance(widget, QLineEdit) or isinstance(widget, FileInputWidget):
                 kwargs[name] = widget.text()
-            elif isinstance(widget, IntInputWidget):
-                try:
-                    kwargs[name] = int(widget.text())
-                except ValueError:
-                    kwargs[name] = None
             else:
-                try:
-                    kwargs[name] = float(widget.text())
-                except ValueError:
-                    kwargs[name] = None
+                kwargs[name] = widget.value()
         return kwargs
     def __call__(self, *args, **kwds):
         

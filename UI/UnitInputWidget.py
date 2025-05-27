@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QComboBox
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QFileDialog
 from PySide6.QtCore import Qt
 
 
@@ -39,6 +39,45 @@ class UnitInputWidget(QWidget):
     def setText(self, text):
         """设置控件中的字面值"""
         self.input_field.setText(text)
+
+
+# 文件输入控件
+# 左侧为文件路径输入框，右侧为浏览按钮
+class FileInputWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        # 输入框
+        self.input_field = QLineEdit(self)
+        self.input_field.setPlaceholderText("Enter file path")
+        layout.addWidget(self.input_field)
+
+        # 浏览按钮
+        self.browse_button = QPushButton("Browse", self)
+        self.browse_button.clicked.connect(self.browse_file)
+        layout.addWidget(self.browse_button)
+
+    def browse_file(self):
+        # 打开文件对话框
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select File")
+        if file_path:
+            self.input_field.setText(file_path)
+
+    def setText(self, text):
+        """设置控件中的文件路径"""
+        self.input_field.setText(text)
+
+    def text(self):
+        """获取控件中的文件路径"""
+        return self.input_field.text()
+
+    
+
 
 # 距离输入控件
 # 继承自 UnitInputWidget

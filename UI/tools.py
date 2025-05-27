@@ -18,5 +18,8 @@ class Float(float):
 class Int(int):
     pass
 
+class FilePath(str):
+    pass
+
 
 
